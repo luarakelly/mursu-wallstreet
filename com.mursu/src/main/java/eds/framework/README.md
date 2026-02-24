@@ -32,7 +32,6 @@ Usage :
 
 ``
 Event nextEvent = eventList.remove();
-
 if (!eventList.isEmpty()) {
     double nextEvent = eventList.getNextTime();
 }
