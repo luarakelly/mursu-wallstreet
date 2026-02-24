@@ -1,7 +1,6 @@
 package eds.framework;
 
 import controller.IControllerMtoV;
-import eds.model.ServicePoint;
 
 public abstract class Engine extends Thread implements IEngine {  // NEW DEFINITIONS
 	private double simulationTime = 0;	// time when the simulation will be stopped

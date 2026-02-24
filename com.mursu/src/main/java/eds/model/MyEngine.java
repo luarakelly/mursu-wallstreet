@@ -1,10 +1,7 @@
 package eds.model;
 
 import controller.IControllerMtoV;
-import eds.framework.ArrivalProcess;
-import eds.framework.Clock;
-import eds.framework.Engine;
-import eds.framework.Event;
+import eds.framework.*;
 import eduni.distributions.Negexp;
 import eduni.distributions.Normal;
 
