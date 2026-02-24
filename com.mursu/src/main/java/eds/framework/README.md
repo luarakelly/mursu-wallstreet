@@ -40,6 +40,7 @@ if (!eventList.isEmpty()) {
 **EventType and IEventType**
 
 EventType defines the possible types of events in the exchange simulation such as
+
 ``
 ARRIVAL,
 VALIDATION_COMPLETE,
@@ -76,6 +77,7 @@ Trace
 Trace is a simple logging utility. It allows printing messages based on a selected trace level. It was in the teacher files, I edited it a bit, not sure if we use it.
 
 Usage:
+
 ``
 Trace.setTraceLevel(Trace.Level.INFO);
 Trace.out(Trace.Level.INFO, "Order arrived");
