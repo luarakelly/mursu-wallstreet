@@ -86,4 +86,15 @@ public class Order {
         return conclusionTime;
     }
 
+    /**
+     * Checks if the order is still active not filled or cancelled.
+     */
+    public boolean isActive() {
+        return status == Status.NEW || status == Status.PARTIAL;
+    }
+
+    public boolean isFilled() {
+        return status == Status.FILLED;
+    }
+
 }
