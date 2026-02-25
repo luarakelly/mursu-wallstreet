@@ -97,4 +97,45 @@ public class Order {
         return status == Status.FILLED;
     }
 
+    // ── Setters ─────────────────────────────────────────────────────────────
+
+    /**
+     * Subtracts from remainingShareSize.
+     * Transitions to PARTIAL if shares remain or to FILLED if no shares remain.
+     */
+    public void reduceShareSize(int qty, double currentTime) {
+        if (qty <= 0) {
+            throw new IllegalArgumentException("Reduction quantity must be positive");
+        }
+        if (!isActive()) {
+            throw new IllegalStateException("Cannot reduce a non-active order");
+        }
+
+        remainingShareSize -= qty;
+
+        if (remainingShareSize <= 0) {
+            remainingShareSize = 0;
+            status = Status.FILLED;
+            conclusionTime = currentTime;
+        } else {
+            status = Status.PARTIAL;
+        }
+    }
+
+    /**
+     * Cancels the order.
+     */
+    public void cancel(double currentTime) {
+        if (isActive()) {
+            status = Status.CANCELLED;
+            conclusionTime = currentTime;
+        }
+    }
+
+    @Override
+    public String toString() {
+        return String.format(
+                "[%s] %s %s @ %.2f  rem=%d  status=%s  arrival=%.4f  conclusion=%.4f",
+                id, side, type, price, remainingShareSize, status, arrivalTime, conclusionTime);
+    }
 }
