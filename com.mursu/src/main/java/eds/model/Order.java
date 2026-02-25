@@ -47,4 +47,43 @@ public class Order {
         this.arrivalTime = arrivalTime;
         this.conclusionTime = 0; // zero indicates "not yet concluded"
     }
+
+    // ── Getters ─────────────────────────────────────────────────────────────
+
+    public String getId() {
+        return id;
+    }
+
+    public Side getSide() {
+        return side;
+    }
+
+    public Type getType() {
+        return type;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public int getOriginalShareSize() {
+        return originalShareSize;
+    }
+
+    public int getRemainingShareSize() {
+        return remainingShareSize;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public double getArrivalTime() {
+        return arrivalTime;
+    }
+
+    public double getConclusionTime() {
+        return conclusionTime;
+    }
+
 }
