@@ -45,7 +45,7 @@ public class Order {
         this.remainingShareSize = size;
         this.status = Status.NEW;
         this.arrivalTime = arrivalTime;
-        this.conclusionTime = 0; // zero indicates "not yet concluded"
+        this.conclusionTime = Double.NaN; // indicates "not yet concluded"
     }
 
     // ── Getters ─────────────────────────────────────────────────────────────
@@ -110,11 +110,13 @@ public class Order {
         if (!isActive()) {
             throw new IllegalStateException("Cannot reduce a non-active order");
         }
+        if (qty > remainingShareSize) {
+            throw new IllegalArgumentException(
+                    "Requested reduction is greater than available shares: " + qty + " > " + remainingShareSize);
+        }
 
         remainingShareSize -= qty;
-
         if (remainingShareSize <= 0) {
-            remainingShareSize = 0;
             status = Status.FILLED;
             conclusionTime = currentTime;
         } else {
