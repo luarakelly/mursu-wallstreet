@@ -2,23 +2,32 @@ package eds.framework;
 
 import java.util.PriorityQueue;
 
+// DONE (by Ks)
+
 public class EventList {
-	private PriorityQueue<Event> lista = new PriorityQueue<Event>();
-	
-	public EventList() {
+	// Prioriteettijono, joka järjestää tapahtumat ajan mukaan
+	private final PriorityQueue<Event> events = new PriorityQueue<>();
+
+	// Lisää uusi tapahtuma listaan
+	public void add(Event event) {
+		events.add(event);
 	}
-	
-	public Event remove(){
-		return lista.remove();
+
+	// Poistaa ja palauttaa aikaisimman tapahtuman
+	public Event remove() {
+		return events.poll();
 	}
-	
-	public void add(Event t){
-		lista.add(t);
+
+	// Palauttaa seuraavan tapahtuman ajan
+	public double getNextTime() {
+		if (events.isEmpty()) {
+			throw new IllegalStateException("EventList is empty");
+		}
+		return events.peek().getTime();
 	}
-	
-	public double getNextTime(){
-		return lista.peek().getTime();
+
+	// Tarkistaa onko lista tyhjä
+	public boolean isEmpty() {
+		return events.isEmpty();
 	}
-	
-	
 }

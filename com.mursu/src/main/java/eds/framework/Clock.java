@@ -1,25 +1,34 @@
 package eds.framework;
 
+// DONE (by Ks)
+
 public class Clock {
-	private double time;
+	// luokan ainoa instanssi
 	private static Clock instance;
-	
-	private Clock(){
-		time = 0;
+
+	// simulaation nykyinen aika
+	private double time;
+
+	// yksityinen konstruktori, new Clock() ei ole sallittu
+	private Clock() {
+		this.time = 0;
 	}
-	
-	public static Clock getInstance(){
-		if (instance == null){
+
+	// hae ainoa instanssi
+	public static Clock getInstance() {
+		if (instance == null) {
 			instance = new Clock();
 		}
 		return instance;
 	}
-	
-	public void setTime(double time){
+
+	// aseta aika
+	public void setTime(double time) {
 		this.time = time;
 	}
 
-	public double getTime(){
+	// hae aika
+	public double getTime() {
 		return time;
 	}
 }

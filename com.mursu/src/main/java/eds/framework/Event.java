@@ -1,31 +1,44 @@
 package eds.framework;
 
+// DONE (by Ks)
+import eds.model.Order;
+
 public class Event implements Comparable<Event> {
-	private IEventType type;
-	private double time;
-	
-	public Event(IEventType type, double time) {
+
+	// Tapahtuman tyyppi (katso enum EventType)
+	private final IEventType type;
+
+	// Simulaatioaika, jolloin tapahtuma suoritetaan
+	private final double time;
+
+	// Tähän tapahtumaan liittyvä tilaus (Order)
+	private final Order order;
+
+	// Luo uuden tapahtuman annetulla tyypillä, ajalla ja tilauksella
+	public Event(IEventType type, double time, Order order) {
 		this.type = type;
 		this.time = time;
+		this.order = order;
 	}
-	
-	public void setType(IEventType type) {
-		this.type = type;
-	}
+
+	// Palauttaa tapahtuman tyypin
 	public IEventType getType() {
 		return type;
 	}
-	public void setTime(double time) {
-		this.time = time;
-	}
+
+	// Palauttaa tapahtuman ajan
 	public double getTime() {
 		return time;
 	}
 
+	// Palauttaa tapahtumaan liittyvän tilauksen
+	public Order getOrder() {
+		return order;
+	}
+
+	// Vertaa tapahtumia ajan perusteella (käytetään prioriteettijonossa)
 	@Override
-	public int compareTo(Event arg) {
-		if (this.time < arg.time) return -1;
-		else if (this.time > arg.time) return 1;
-		return 0;
+	public int compareTo(Event other) {
+		return Double.compare(this.time, other.time);
 	}
 }
