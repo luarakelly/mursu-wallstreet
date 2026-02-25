@@ -3,12 +3,15 @@ package eds.framework;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.DisplayName;
 
 import eds.model.EventType;
 import eds.model.Order;
 
+@DisplayName("Event tests")
 class EventTest {
     @Test
+    @DisplayName("constructor correctly stores type, time and order")
     void constructorStoresValuesCorrectly() {
         IEventType type = EventType.ARRIVAL;
         Order order = null;
@@ -21,6 +24,7 @@ class EventTest {
     }
 
     @Test
+    @DisplayName("compareTo returns negative number (aka false) when first event time is smaller")
     void compareToOrdersByTime() {
         Event event1 = new Event(EventType.ARRIVAL, 5.0, null);
         Event event2 = new Event(EventType.ARRIVAL, 10.0, null);

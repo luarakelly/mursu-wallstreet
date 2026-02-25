@@ -4,11 +4,13 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.DisplayName;
 
 import eds.model.EventType;
 import eds.model.Order;
 import eduni.distributions.Negexp;
 
+@DisplayName("ServicePoint tests")
 class ServicePointTest {
     static class FixedNegexp extends Negexp {
         private final double value;
@@ -23,6 +25,7 @@ class ServicePointTest {
         }
     }
 
+    @DisplayName("add method starts service process and creates completion event")
     @Test
     void addStartsServiceAndCreatesEvent() {
         EventList eventList = new EventList();
@@ -40,6 +43,7 @@ class ServicePointTest {
         assertEquals(15.0, eventList.getNextTime());
     }
 
+    @DisplayName("finishService methond releases current order and starts next if available")
     @Test
     void finishServiceReleasesAndStartsNext() {
         EventList eventList = new EventList();
@@ -61,6 +65,7 @@ class ServicePointTest {
         assertTrue(servicePoint.hasOrders());
     }
 
+    @DisplayName("finishService makes service point idle when queue is empty")
     @Test
     void finishServiceWhenNoOrdersMakesIdle() {
         EventList eventList = new EventList();
