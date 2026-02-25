@@ -6,14 +6,14 @@ Interactive Java-based stock exchange order book simulator with real-time visual
 ### Ksenia 
 - App.js - orchestrator 
 - controllers - connector to Ui and model 
-- Clock
-- Event 
-- EventType
-- EventList 
-- ServicePoint 
+- Clock ✅
+- Event ✅
+- EventType ✅
+- EventList ✅
+- ServicePoint ✅ 
 
 ### Luara 
-- Order 
+- Order ✅
 - Trade
 - OrderBook 
 - Matching 
