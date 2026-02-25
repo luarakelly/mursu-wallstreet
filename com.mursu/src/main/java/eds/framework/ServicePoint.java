@@ -4,7 +4,8 @@ import eduni.distributions.Negexp;
 import java.util.LinkedList;
 
 // DONE (by Ks)
-// TODO Add order when it's ready
+import eds.model.Order;
+
 public class ServicePoint {
 	// Jonorakenne tilauksille
 	private final LinkedList<Order> queue = new LinkedList<>();

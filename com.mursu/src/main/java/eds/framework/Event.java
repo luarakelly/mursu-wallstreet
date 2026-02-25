@@ -1,7 +1,7 @@
 package eds.framework;
 
 // DONE (by Ks)
-// TODO Order needs to be added when it's ready
+import eds.model.Order;
 
 public class Event implements Comparable<Event> {
 
