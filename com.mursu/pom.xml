@@ -19,6 +19,8 @@
         <dependency> <groupId>org.openjfx</groupId> <artifactId>javafx-graphics</artifactId> <version>21.0.2</version> </dependency>
         <dependency> <groupId>org.openjfx</groupId> <artifactId>javafx-fxml</artifactId> <version>20.0.1</version> </dependency>
         <dependency> <groupId>org.openjfx</groupId> <artifactId>javafx-controls</artifactId> <version>20.0.1</version> </dependency>
+        <!-- JUnit 5 for dev testing -->
+        <dependency> <groupId>org.junit.jupiter</groupId> <artifactId>junit-jupiter</artifactId> <version>5.10.0</version> <scope>test</scope> </dependency>
     </dependencies>
 
     <!--    Run `mvn clean javafx:run` in your terminal to run Main.java with maven-->
@@ -31,6 +33,12 @@
                 <configuration>
                     <mainClass>Main</mainClass>
                 </configuration>
+            </plugin>
+            <!-- Pugin for running the tests -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.1.2</version>
             </plugin>
         </plugins>
     </build>
