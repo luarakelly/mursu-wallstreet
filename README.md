@@ -22,8 +22,9 @@ Interactive Java-based stock exchange order book simulator with real-time visual
 - View 
 
 ### Veikka 
-- Order arrival, size, side and price distribution
-- OrderGenerator 
-- StatisticsColector 
+- Arrivalprocess. Java
+- MyEngine. Java
+- Engine. Java
+- StatisticsColector. Java
 
 ![succeed because I&#39;m insane](https://github.com/user-attachments/assets/7e0777b6-042a-44db-850f-d2c05f3c86b9)
