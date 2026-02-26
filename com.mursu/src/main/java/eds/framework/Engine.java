@@ -3,7 +3,9 @@ package eds.framework;
 import controller.IControllerMtoV;
 
 public abstract class Engine extends Thread implements IEngine {  // NEW DEFINITIONS
+	// Simulaation kesto
 	private double simulationTime = 0;	// time when the simulation will be stopped
+	// Viive
 	private long delay = 0;
 	private Clock clock;				// in order to simplify the code (clock.getClock() instead Clock.getInstance().getClock())
 	
@@ -15,7 +17,6 @@ public abstract class Engine extends Thread implements IEngine {  // NEW DEFINIT
 		this.controller = controller;  			// NEW
 		clock = Clock.getInstance();
 		eventList = new EventList();
-		/* Service Points are created in simu.model-package's class who is inheriting the Engine class */
 	}
 
 	@Override
@@ -35,6 +36,7 @@ public abstract class Engine extends Thread implements IEngine {  // NEW DEFINIT
 	
 	@Override
 	public void run() {
+		// Aloitetaas
 		initialization(); // creating, e.g., the first event
 
 		while (simulate()){
@@ -55,8 +57,7 @@ public abstract class Engine extends Thread implements IEngine {  // NEW DEFINIT
 
 	private void tryCEvents() {    // define protected, if you want to overwrite
 		for (ServicePoint p: servicePoints){
-			if (!p.isReserved() && p.isOnQueue()){
-				p.beginService();
+			if (!p.isBusy() && p.hasOrders()){
 			}
 		}
 	}
