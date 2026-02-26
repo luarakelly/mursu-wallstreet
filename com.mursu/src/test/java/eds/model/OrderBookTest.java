@@ -129,7 +129,7 @@ class OrderBookTest {
             assertTrue(bestBidOrder.isPresent());
 
             Order orderToRemove = bestBidOrder.get();
-            book.removeOrderByID(orderToRemove);
+            book.removeOrder(orderToRemove);
 
             // Best bid should now be next highest
             assertEquals(100.0, book.getBestBidPrice().getAsDouble());
