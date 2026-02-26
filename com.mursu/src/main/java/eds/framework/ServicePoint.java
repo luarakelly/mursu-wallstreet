@@ -65,9 +65,6 @@ public class ServicePoint {
 	 */
 	public void add(Order order) {
 		queue.add(order);
-		if (!isBusy()) {
-			startService();
-		}
 	}
 
 	/**
@@ -81,11 +78,6 @@ public class ServicePoint {
 	public Order finishService() {
 		Order finished = queue.poll();
 		busy = false;
-
-		if (hasOrders()) {
-			startService();
-		}
-
 		return finished;
 	}
 
@@ -112,7 +104,7 @@ public class ServicePoint {
 	 * Generates a service completion event and schedules it
 	 * in the EventList.
 	 */
-	private void startService() {
+	public void startService() {
 		if (queue.isEmpty()) {
 			return;
 		}

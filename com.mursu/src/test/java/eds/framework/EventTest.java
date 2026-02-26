@@ -24,7 +24,6 @@ class EventTest {
     }
 
     @Test
-    @DisplayName("compareTo returns negative number (aka false) when first event time is smaller")
     void compareToOrdersByTime() {
         Event event1 = new Event(EventType.ARRIVAL, 5.0, null);
         Event event2 = new Event(EventType.ARRIVAL, 10.0, null);
