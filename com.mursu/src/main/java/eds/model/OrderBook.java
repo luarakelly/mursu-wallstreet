@@ -114,7 +114,7 @@ public class OrderBook {
      * Removes a specific order by identity.
      * Cleans up the price level if it becomes empty.
      */
-    public void removeOrderByID(Order order) {
+    public void removeOrder(Order order) {
         TreeMap<Double, Deque<Order>> side = sideMap(order.getSide());
         Deque<Order> priceLevel = side.get(order.getPrice());
         if (priceLevel != null) {
