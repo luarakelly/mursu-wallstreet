@@ -10,11 +10,11 @@ Interactive Java-based stock exchange order book simulator with real-time visual
 - Event ✅
 - EventType ✅
 - EventList ✅
-- ServicePoint ✅ 
+- ServicePoint ✅
+- Trade
 
 ### Luara 
 - Order ✅
-- Trade
 - OrderBook 
 - Matching 
 

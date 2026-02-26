@@ -40,6 +40,37 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.1.2</version>
             </plugin>
+            <!-- Plugin for creating Javadoc in taget/site/apidocs -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.6.3</version>
+                <configuration>
+                    <source>17</source>
+                    <failOnError>false</failOnError>
+                    <subpackages>
+                        <!-- Run-->
+                        <!--     cd com.mursu -->
+                        <!--     mvn javadoc:javadoc -->
+                        <!-- to generate javadoc in taget/site/apidocs-->
+
+                        <!-- Javadoc for eds.framework -->
+                        eds.framework,
+
+                        <!-- Javadoc for eds.model -->
+                        <!-- eds.model,-->
+
+                        <!-- Javadoc for controller -->
+                        <!-- controller,-->
+
+                        <!-- Javadoc for view -->
+                        <!-- view,-->
+
+                        <!-- Javadoc for distributions -->
+                        <!-- eduni.distributions,-->
+                    </subpackages>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 </project>
