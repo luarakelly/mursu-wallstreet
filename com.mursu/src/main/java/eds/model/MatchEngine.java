@@ -11,23 +11,17 @@ import java.util.OptionalDouble;
  * - Routes unfilled LIMIT orders to the resting book
  * - Cancels unfilled MARKET orders immediately
  */
-public class MatchingEngine {
-
-    private final double currentTime;
-
-    public MatchingEngine(double currentTime) {
-        this.currentTime = currentTime;
-    }
+public class MatchEngine {
 
     // Main method to process an incoming order
-    public List<Trade> match(Order incoming, OrderBook book) {
+    public List<Trade> match(Order incoming, OrderBook book, double currentTime) {
 
         List<Trade> trades = new ArrayList<>();
 
         if (incoming.getSide() == Order.Side.BUY) {
-            matchBuy(incoming, book, trades);
+            matchBuy(incoming, book, trades, currentTime);
         } else {
-            matchSell(incoming, book, trades);
+            matchSell(incoming, book, trades, currentTime);
         }
 
         // Handle remainder
@@ -41,7 +35,7 @@ public class MatchingEngine {
     }
 
     // ── BUY -match against best asks ────────────────────────────────────────────
-    private void matchBuy(Order buy, OrderBook book, List<Trade> trades) {
+    private void matchBuy(Order buy, OrderBook book, List<Trade> trades, double currentTime) {
         while (buy.isActive() && book.hasAsks()) {
 
             OptionalDouble bestAskPriceOpt = book.getBestAskPrice();
@@ -83,7 +77,7 @@ public class MatchingEngine {
     }
 
     // ── SELL -match against best bids ──────────────────────────────────────────
-    private void matchSell(Order sell, OrderBook book, List<Trade> trades) {
+    private void matchSell(Order sell, OrderBook book, List<Trade> trades, double currentTime) {
         while (sell.isActive() && book.hasBids()) {
 
             OptionalDouble bestBidPriceOpt = book.getBestBidPrice();
