@@ -29,3 +29,6 @@ target/
 ## IDE directories
 .idea
 .vscode
+
+## SQL database file
+simulation.db
