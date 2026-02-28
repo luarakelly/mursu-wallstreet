@@ -21,7 +21,7 @@ import eds.framework.IEventType;
 public enum EventType implements IEventType {
     ARRIVAL,
     VALIDATION_COMPLETE,
-    MATCHING_COMPLETE,
-    EXECUTION_COMPLETE,
-    SIMULATION_END,
+    MARKET_MATCHING_COMPLETE,
+    LIMIT_MATCHING_COMPLETE,
+    EXECUTION_COMPLETE
 }
