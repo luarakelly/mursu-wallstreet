@@ -1,5 +1,6 @@
 package eds.model;
 
+import java.util.Locale;
 import java.util.UUID;
 
 /**
@@ -97,8 +98,8 @@ public class Trade {
     @Override
     public String toString() {
         return String.format(
+                Locale.US,
                 "[%s] buyID=%s sellID=%s @ %.2f size=%d conclusion=%.4f",
-                id, buyOrderId, sellOrderId, price, shareSize, conclusionTime
-        );
+                id, buyOrderId, sellOrderId, price, shareSize, conclusionTime);
     }
 }
