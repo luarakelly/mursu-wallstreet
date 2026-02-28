@@ -21,6 +21,8 @@
         <dependency> <groupId>org.openjfx</groupId> <artifactId>javafx-controls</artifactId> <version>20.0.1</version> </dependency>
         <!-- JUnit 5 for dev testing -->
         <dependency> <groupId>org.junit.jupiter</groupId> <artifactId>junit-jupiter</artifactId> <version>5.10.0</version> <scope>test</scope> </dependency>
+        <!-- SQLite database -->
+        <dependency> <groupId>org.xerial</groupId> <artifactId>sqlite-jdbc</artifactId> <version>3.42.0.0</version> </dependency>
     </dependencies>
 
     <!--    Run `mvn clean javafx:run` in your terminal to run Main.java with maven-->
