@@ -2,20 +2,22 @@ package eds.framework;
 
 import controller.IControllerMtoV;
 
-public abstract class Engine extends Thread implements IEngine {  // NEW DEFINITIONS
+public abstract class Engine extends Thread implements IEngine {
+	// Simulaation kesto
 	private double simulationTime = 0;	// time when the simulation will be stopped
+
+	// Viive
 	private long delay = 0;
-	private Clock clock;				// in order to simplify the code (clock.getClock() instead Clock.getInstance().getClock())
+	private final Clock clock;
 	
 	protected EventList eventList;
 	protected ServicePoint[] servicePoints;
-	protected IControllerMtoV controller; // NEW
+	protected IControllerMtoV controller; 
 
-	public Engine(IControllerMtoV controller) {	// NEW
-		this.controller = controller;  			// NEW
+	public Engine(IControllerMtoV controller) {	
+		this.controller = controller;  			
 		clock = Clock.getInstance();
 		eventList = new EventList();
-		/* Service Points are created in simu.model-package's class who is inheriting the Engine class */
 	}
 
 	@Override
@@ -23,22 +25,23 @@ public abstract class Engine extends Thread implements IEngine {  // NEW DEFINIT
 		simulationTime = time;
 	}
 	
-	@Override // NEW
+	@Override 
 	public void setDelay(long time) {
 		this.delay = time;
 	}
 	
-	@Override // NEW
+	@Override 
 	public long getDelay() {
 		return delay;
 	}
 	
 	@Override
 	public void run() {
+		// Aloitetaas
 		initialization(); // creating, e.g., the first event
 
 		while (simulate()){
-			delay(); // NEW
+			delay(); 
 			clock.setTime(currentTime());
 			runBEvents();
 			tryCEvents();
@@ -53,12 +56,13 @@ public abstract class Engine extends Thread implements IEngine {  // NEW DEFINIT
 		}
 	}
 
-	private void tryCEvents() {    // define protected, if you want to overwrite
-		for (ServicePoint p: servicePoints){
-			if (!p.isReserved() && p.isOnQueue()){
-				p.beginService();
+	/* Start service. Thanks Ksenia! ☝️*/
+	private void tryCEvents() {
+		for (ServicePoint p : servicePoints) {
+			if (!p.isBusy() && p.hasOrders()) {
+				p.startService();
 			}
-		}
+}
 	}
 
 	private double currentTime(){
@@ -70,7 +74,7 @@ public abstract class Engine extends Thread implements IEngine {  // NEW DEFINIT
 		return clock.getTime() < simulationTime;
 	}
 
-	private void delay() { // NEW
+	private void delay() {
 		Trace.out(Trace.Level.INFO, "Delay " + delay);
 		try {
 			sleep(delay);
@@ -79,7 +83,7 @@ public abstract class Engine extends Thread implements IEngine {  // NEW DEFINIT
 		}
 	}
 
-	protected abstract void initialization(); 	// Defined in simu.model-package's class who is inheriting the Engine class
-	protected abstract void runEvent(Event t);	// Defined in simu.model-package's class who is inheriting the Engine class
-	protected abstract void results(); 			// Defined in simu.model-package's class who is inheriting the Engine class
+	protected abstract void initialization(); 	
+	protected abstract void runEvent(Event t);	
+	protected abstract void results(); 			
 }
