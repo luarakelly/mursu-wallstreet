@@ -15,10 +15,10 @@
     </properties>
 
     <dependencies>
-        <dependency> <groupId>org.openjfx</groupId> <artifactId>javafx</artifactId> <version>20.0.1</version> <type>pom</type> </dependency>
+        <dependency> <groupId>org.openjfx</groupId> <artifactId>javafx</artifactId> <version>21.0.2</version> <type>pom</type> </dependency>
         <dependency> <groupId>org.openjfx</groupId> <artifactId>javafx-graphics</artifactId> <version>21.0.2</version> </dependency>
-        <dependency> <groupId>org.openjfx</groupId> <artifactId>javafx-fxml</artifactId> <version>20.0.1</version> </dependency>
-        <dependency> <groupId>org.openjfx</groupId> <artifactId>javafx-controls</artifactId> <version>20.0.1</version> </dependency>
+        <dependency> <groupId>org.openjfx</groupId> <artifactId>javafx-fxml</artifactId> <version>21.0.2</version> </dependency>
+        <dependency> <groupId>org.openjfx</groupId> <artifactId>javafx-controls</artifactId> <version>21.0.2</version> </dependency>
         <!-- JUnit 5 for dev testing -->
         <dependency> <groupId>org.junit.jupiter</groupId> <artifactId>junit-jupiter</artifactId> <version>5.10.0</version> <scope>test</scope> </dependency>
     </dependencies>
@@ -39,6 +39,37 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.1.2</version>
+            </plugin>
+            <!-- Plugin for creating Javadoc in taget/site/apidocs -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.6.3</version>
+                <configuration>
+                    <source>17</source>
+                    <failOnError>false</failOnError>
+                    <subpackages>
+                        <!-- Run-->
+                        <!--     cd com.mursu -->
+                        <!--     mvn javadoc:javadoc -->
+                        <!-- to generate javadoc in taget/site/apidocs-->
+
+                        <!-- Javadoc for eds.framework -->
+                        eds.framework,
+
+                        <!-- Javadoc for eds.model -->
+                        <!-- eds.model,-->
+
+                        <!-- Javadoc for controller -->
+                        <!-- controller,-->
+
+                        <!-- Javadoc for view -->
+                        <!-- view,-->
+
+                        <!-- Javadoc for distributions -->
+                        <!-- eduni.distributions,-->
+                    </subpackages>
+                </configuration>
             </plugin>
         </plugins>
     </build>
