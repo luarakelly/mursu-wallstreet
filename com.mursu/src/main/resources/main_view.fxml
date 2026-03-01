@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+   <top>
+      <AnchorPane prefHeight="93.0" prefWidth="600.0" BorderPane.alignment="CENTER">
+         <children>
+            <Label layoutX="14.0" layoutY="26.0" text="Mursu Wallstreet Order Book Simulator">
+               <font>
+                  <Font name="System Bold" size="24.0" />
+               </font>
+            </Label>
+            <Button fx:id="btnConfig" layoutX="734.0" layoutY="31.0" mnemonicParsing="false" text="Config" />
+         </children>
+      </AnchorPane>
+   </top>
+   <center>
+      <AnchorPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+         <children>
+            <HBox layoutX="14.0" layoutY="14.0" prefHeight="46.0" prefWidth="250.0" spacing="10.0">
+               <children>
+                  <Button fx:id="btnStart" mnemonicParsing="false" prefWidth="70.0" text="Start ▶" />
+                  <Button fx:id="btnPause" mnemonicParsing="false" prefWidth="70.0" text="Pause ||" />
+                  <Label text="Timer:">
+                     <font>
+                        <Font size="13.0" />
+                     </font></Label>
+                  <Label fx:id="labelTimer" text="0">
+                     <font>
+                        <Font size="13.0" />
+                     </font></Label>
+               </children>
+            </HBox>
+            <Canvas fx:id="graph" height="200.0" layoutX="14.0" layoutY="91.0" width="340.0" />
+            <TableView layoutX="375.0" layoutY="80.0" prefHeight="410.0" prefWidth="410.0">
+              <columns>
+                <TableColumn fx:id="colAskShare" prefWidth="82.0" resizable="false" text="Share" />
+                <TableColumn fx:id="colAskPrice" prefWidth="82.0" resizable="false" text="Price" />
+                  <TableColumn fx:id="colBidShare" prefWidth="82.0" resizable="false" text="Share" />
+                  <TableColumn fx:id="colBidPrice" prefWidth="82.0" resizable="false" text="Price" />
+                  <TableColumn fx:id="colSpread" prefWidth="82.0" resizable="false" text="Spread" />
+              </columns>
+            </TableView>
+            <Label layoutX="375.0" layoutY="14.0" text="Order Book and price spread">
+               <font>
+                  <Font name="System Bold" size="18.0" />
+               </font>
+            </Label>
+            <Label layoutX="14.0" layoutY="60.0" text="Price change">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Label>
+            <Label layoutX="42.0" layoutY="319.0" text="Service Point Queue">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Label>
+            <HBox layoutX="42.0" layoutY="349.0" prefHeight="130.0" prefWidth="260.0">
+               <children>
+                  <VBox prefHeight="200.0" prefWidth="100.0">
+                     <children>
+                        <Label text="Arrival" />
+                        <Label text="Market" />
+                        <Label text="Limit" />
+                        <Label text="Execution" />
+                     </children>
+                  </VBox>
+                  <VBox prefHeight="200.0" prefWidth="100.0">
+                     <children>
+                        <Label fx:id="labelArrival" text="0" />
+                        <Label fx:id="labelMarket" text="0" />
+                        <Label fx:id="labelLimit" text="0" />
+                        <Label fx:id="labelExecution" text="0" />
+                     </children>
+                  </VBox>
+               </children>
+            </HBox>
+            <HBox alignment="BOTTOM_LEFT" layoutX="375.0" layoutY="41.0" prefHeight="38.0" prefWidth="410.0">
+               <children>
+                  <Label prefWidth="164.0" text="Ask (Sell)">
+                     <font>
+                        <Font name="System Bold" size="14.0" />
+                     </font>
+                  </Label>
+                  <Label prefWidth="164.0" text="Bid (Buy)">
+                     <font>
+                        <Font name="System Bold" size="14.0" />
+                     </font>
+                  </Label>
+                  <Label text="Price">
+                     <font>
+                        <Font name="System Bold" size="14.0" />
+                     </font>
+                  </Label>
+               </children>
+               <padding>
+                  <Insets bottom="5.0" left="5.0" />
+               </padding>
+            </HBox>
+         </children>
+      </AnchorPane>
+   </center>
+</BorderPane>
