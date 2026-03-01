@@ -130,9 +130,7 @@ class OrderBookTest {
 
             Order orderToRemove = bestBidOrder.get();
             book.removeOrder(orderToRemove);
-
-            
-
+            assertFalse(book.getBestBidOrder().get().getId().equals(orderToRemove.getId()));
             // Best bid should now be next highest
             assertEquals(100.0, book.getBestBidPrice().getAsDouble());
         }
@@ -163,6 +161,140 @@ class OrderBookTest {
             Order marketOrder = new Order(Order.Side.BUY, Order.Type.MARKET, 100.0, 10, 0.0);
 
             assertThrows(IllegalArgumentException.class, () -> book.addOrder(marketOrder));
+        }
+
+        @Test
+        @DisplayName("Price level is cleaned up when last order is removed")
+        void priceLevelCleanupOnLastRemoval() {
+            OrderBook book = new OrderBook();
+            Order only = new Order(Order.Side.BUY, Order.Type.LIMIT, 100.0, 50, 0.0);
+            book.addOrder(only);
+
+            book.removeOrder(only);
+
+            assertTrue(book.getBestBidPrice().isEmpty());
+            assertFalse(book.hasBids());
+            assertEquals(0, book.remainingOrderCount());
+        }
+
+        @Test
+        @DisplayName("remainingOrderCount reflects total resting orders")
+        void remainingOrderCount() {
+            OrderBook book = createBookWithOrders(); // 2 bids + 2 asks = 4
+            assertEquals(4, book.remainingOrderCount());
+
+            book.removeBestBidOrder();
+            assertEquals(3, book.remainingOrderCount());
+
+            OrderBook empty = new OrderBook();
+            assertEquals(0, empty.remainingOrderCount());
+        }
+
+        @Test
+        @DisplayName("FIFO ordering preserved within same price level")
+        void fifoWithinPriceLevel() {
+            OrderBook book = new OrderBook();
+            Order first = new Order(Order.Side.BUY, Order.Type.LIMIT, 100.0, 50, 0.0);
+            Order second = new Order(Order.Side.BUY, Order.Type.LIMIT, 100.0, 30, 0.1);
+
+            book.addOrder(first);
+            book.addOrder(second);
+
+            assertEquals(first.getId(), book.getBestBidOrder().get().getId());
+            book.removeBestBidOrder();
+            assertEquals(second.getId(), book.getBestBidOrder().get().getId());
+        }
+
+        @Test
+        @DisplayName("getSnapshot returns correct depth and market state")
+        void snapshotContent() {
+            OrderBook book = createBookWithOrders();
+            OrderBook.OrderBookSnapshot snap = book.getSnapshot();
+
+            assertEquals(2, snap.bids().size());
+            assertEquals(2, snap.asks().size());
+
+            assertEquals(101.0, snap.bestBid().getAsDouble());
+            assertEquals(102.0, snap.bestAsk().getAsDouble());
+            assertTrue(snap.midPrice().isPresent());
+            assertTrue(snap.spread().isPresent());
+
+            // snapshot lists must be unmodifiable
+            assertThrows(UnsupportedOperationException.class, () -> snap.bids().add(null));
+        }
+
+        @Test
+        @DisplayName("print snapshot to terminal for visual inspection")
+        void printSnapshot() {
+            OrderBook book = new OrderBook();
+
+            // Add bids
+            book.addOrder(new Order(Order.Side.BUY, Order.Type.LIMIT, 101.00, 100, 0.0));
+            book.addOrder(new Order(Order.Side.BUY, Order.Type.LIMIT, 101.00, 50, 0.1)); // same level FIFO
+            book.addOrder(new Order(Order.Side.BUY, Order.Type.LIMIT, 100.50, 75, 0.2));
+            book.addOrder(new Order(Order.Side.BUY, Order.Type.LIMIT, 100.00, 200, 0.3));
+
+            // Add asks
+            book.addOrder(new Order(Order.Side.SELL, Order.Type.LIMIT, 101.50, 80, 0.4));
+            book.addOrder(new Order(Order.Side.SELL, Order.Type.LIMIT, 102.00, 120, 0.5));
+            book.addOrder(new Order(Order.Side.SELL, Order.Type.LIMIT, 102.00, 30, 0.6)); // same level FIFO
+            book.addOrder(new Order(Order.Side.SELL, Order.Type.LIMIT, 103.00, 60, 0.7));
+
+            OrderBook.OrderBookSnapshot snap = book.getSnapshot();
+            System.out.println(formatSnapshot("INITIAL BOOK", snap));
+            System.out.println("Remaining orders: " + book.remainingOrderCount());
+
+            // Remove best bid — first order at 101.00 (qty=100), second (qty=50) remains
+            book.removeBestBidOrder();
+            snap = book.getSnapshot();
+            System.out.println(formatSnapshot("AFTER removeBestBidOrder", snap));
+            System.out.println("Remaining orders: " + book.remainingOrderCount());
+
+            // Remove best ask — 101.50 level gone entirely
+            book.removeBestAskOrder();
+            snap = book.getSnapshot();
+            System.out.println(formatSnapshot("AFTER removeBestAskOrder", snap));
+            System.out.println("Remaining orders: " + book.remainingOrderCount());
+        }
+
+        // ── Helper — formats snapshot as a readable terminal table ───────────────────
+        private String formatSnapshot(String label, OrderBook.OrderBookSnapshot snap) {
+            StringBuilder sb = new StringBuilder();
+            sb.append(String.format("%n============================================%n"));
+            sb.append(String.format("  %s%n", label));
+            sb.append(String.format("============================================%n"));
+
+            sb.append("  ASK side (lowest first)\n");
+            if (snap.asks().isEmpty()) {
+                sb.append("    (empty)\n");
+            } else {
+                for (OrderBook.PriceLevel level : snap.asks())
+                    sb.append(String.format("    price=%-8.2f totalQty=%-6d orders=%d%n",
+                            level.price(), level.totalQty(), level.orderCount()));
+            }
+
+            sb.append(String.format("  ------------------------------------%n"));
+            sb.append(String.format("  Best Ask : %s%n",
+                    snap.bestAsk().isPresent() ? String.format("%.2f", snap.bestAsk().getAsDouble()) : "—"));
+            sb.append(String.format("  Best Bid : %s%n",
+                    snap.bestBid().isPresent() ? String.format("%.2f", snap.bestBid().getAsDouble()) : "—"));
+            sb.append(String.format("  Mid Price: %s%n",
+                    snap.midPrice().isPresent() ? String.format("%.2f", snap.midPrice().getAsDouble()) : "—"));
+            sb.append(String.format("  Spread   : %s%n",
+                    snap.spread().isPresent() ? String.format("%.2f", snap.spread().getAsDouble()) : "—"));
+            sb.append(String.format("  ------------------------------------%n"));
+
+            sb.append("  BID side (highest first)\n");
+            if (snap.bids().isEmpty()) {
+                sb.append("    (empty)\n");
+            } else {
+                for (OrderBook.PriceLevel level : snap.bids())
+                    sb.append(String.format("    price=%-8.2f totalQty=%-6d orders=%d%n",
+                            level.price(), level.totalQty(), level.orderCount()));
+            }
+
+            sb.append(String.format("============================================%n"));
+            return sb.toString();
         }
     }
 }
