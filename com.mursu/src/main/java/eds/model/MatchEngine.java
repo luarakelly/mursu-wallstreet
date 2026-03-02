@@ -11,7 +11,7 @@ import java.util.OptionalDouble;
  * - Routes unfilled LIMIT orders to the resting book
  * - Cancels unfilled MARKET orders immediately
  */
-public class MatchEngine {
+public class MatchEngine implements IMatchEngine {
 
     // Main method to process an incoming order
     public List<Trade> match(Order incoming, OrderBook book, double currentTime) {
