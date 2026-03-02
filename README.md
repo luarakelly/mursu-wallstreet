@@ -17,6 +17,10 @@ Interactive Java-based stock exchange order book simulator with real-time visual
 - Order ✅
 - OrderBook ✅
 - Matching ✅
+- Database ✅
+- PerformanceDescriber
+- StatisticsReportRepo
+- Records
 
 ### Unna 
 - View 
