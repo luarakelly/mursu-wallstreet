@@ -37,14 +37,17 @@ public class MyEngine extends Engine {
 		// Luodaan palvelupisteet
 		servicePoints = new ServicePoint[4];
 	
-		servicePoints[0]=new ServicePoint(new Negexp(meanValidation, seed), eventList, EventType.VALIDATION_COMPLETE);
-		servicePoints[1]=new ServicePoint(new Negexp(meanMarketMatching, seed + 1), eventList, EventType.MARKET_MATCHING_COMPLETE);
-		servicePoints[2]=new ServicePoint(new Negexp(meanLimitMatching, seed + 2), eventList, EventType.LIMIT_MATCHING_COMPLETE);
-		servicePoints[3]=new ServicePoint(new Negexp(meanExecution, seed + 3), eventList, EventType.EXECUTION_COMPLETE);
+		/* Creating servicePoints with seed and a random number to ensure desync. 
+		Not sure if that's needed though */
+		servicePoints[0]=new ServicePoint(new Negexp(meanValidation, seed + 88), eventList, EventType.VALIDATION_COMPLETE);
+		servicePoints[1]=new ServicePoint(new Negexp(meanMarketMatching, seed + 19), eventList, EventType.MARKET_MATCHING_COMPLETE);
+		servicePoints[2]=new ServicePoint(new Negexp(meanLimitMatching, seed + 22), eventList, EventType.LIMIT_MATCHING_COMPLETE);
+		servicePoints[3]=new ServicePoint(new Negexp(meanExecution, seed + 69), eventList, EventType.EXECUTION_COMPLETE);
 
-		DiscreteGenerator sideGenerator = new Bernoulli(0.5, seed + 5);
-		DiscreteGenerator typeGenerator = new Bernoulli(0.8, seed + 6);
-		ContinuousGenerator priceGenerator = new Normal(0.0, priceVolatility * priceVolatility, seed + 7);
+		DiscreteGenerator sideGenerator = new Bernoulli(0.5, seed + 42);
+		DiscreteGenerator typeGenerator = new Bernoulli(0.8, seed + 55);
+		/* Normal random walk.*/
+		ContinuousGenerator priceGenerator = new Normal(0.0, priceVolatility * priceVolatility, seed + 62);
 
 		/* Order size variables and generation. We can access these later from the GUI */
 		final double orderSizeLogNormalMean = 3.7;
