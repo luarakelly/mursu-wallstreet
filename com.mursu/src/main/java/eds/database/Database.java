@@ -28,6 +28,7 @@ public class Database {
     private Database() {
         try {
             connection = DriverManager.getConnection(DB_URL);
+            connection.createStatement().execute("PRAGMA foreign_keys = ON");
             Trace.out(Trace.Level.INFO, "Database: connected to simulation.db");
             createTables();
         } catch (SQLException e) {
@@ -59,7 +60,7 @@ public class Database {
 
             // statistics: one row per simulation run
             stmt.execute("""
-                        CREATE TABLE IF NOT EXISTS statistics (
+                        CREATE TABLE IF NOT EXISTS statistics_and_metrics (
                             id                      INTEGER PRIMARY KEY AUTOINCREMENT,
                             run_timestamp           TEXT    NOT NULL,
                             run_name                TEXT,
@@ -106,7 +107,7 @@ public class Database {
 
             // trade: one row per executed trade, linked to a run
             stmt.execute("""
-                        CREATE TABLE IF NOT EXISTS trade (
+                        CREATE TABLE IF NOT EXISTS trades (
                             id              TEXT    PRIMARY KEY,
                             run_id          INTEGER NOT NULL,
                             buy_order_id    TEXT    NOT NULL,
@@ -114,7 +115,7 @@ public class Database {
                             price           REAL    NOT NULL,
                             share_size      INTEGER NOT NULL,
                             conclusion_time REAL    NOT NULL,
-                            FOREIGN KEY (run_id) REFERENCES statistics(id)
+                            FOREIGN KEY (run_id) REFERENCES statistics_and_metrics(id) ON DELETE CASCADE
                         )
                     """);
 
