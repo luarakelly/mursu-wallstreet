@@ -1,7 +1,7 @@
 package eds.framework;
 
 /**
- * Common marker interface for entities that can flow through simulation events and service points.
+ * Common marker interface for entities.
  */
 public interface ISimulationEntity {
 }
