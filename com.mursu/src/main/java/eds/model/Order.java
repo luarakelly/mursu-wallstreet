@@ -12,7 +12,7 @@ import java.util.UUID;
  * Lifecycle: NEW -> PARTIAL -> FILLED | CANCELLED.
  */
 
-public class Order {
+public class Order implements SimulationEntity {
 
     public enum Side {
         BUY, SELL

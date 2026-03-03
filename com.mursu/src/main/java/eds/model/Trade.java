@@ -10,7 +10,7 @@ import java.util.UUID;
  * when a buy and a sell order successfully match.
  */
 
-public class Trade {
+public class Trade implements SimulationEntity {
     /** Unique identifier of the trade. */
     private final String id;
 

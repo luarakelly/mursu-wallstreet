@@ -13,12 +13,16 @@ import eduni.distributions.LogNormal;
 import eduni.distributions.Negexp;
 import eduni.distributions.Normal;
 
+import java.util.List;
+
 
 
 public class MyEngine extends Engine {
 	// Toimeksiannon saapuminen
 	private ArrivalProcess arrivalProcess;
 	private StatisticsCollector stats;
+	private IMatchEngine matchEngine;
+	private OrderBook orderBook;
 
 	public MyEngine(
 			IControllerMtoV controller,
@@ -36,9 +40,12 @@ public class MyEngine extends Engine {
 		
 		// Luodaan palvelupisteet
 		servicePoints = new ServicePoint[4];
-	
-		/* Creating servicePoints with seed and a random number to ensure desync. 
-		Not sure if that's needed though */
+
+		/*
+			Each generator receives a unique seed offset to ensure statistically
+			independent random streams. Same base seed always produces identical
+			simulation output — reproducibility is fully preserved.
+		 */
 		servicePoints[0]=new ServicePoint(new Negexp(meanValidation, seed + 88), eventList, EventType.VALIDATION_COMPLETE);
 		servicePoints[1]=new ServicePoint(new Negexp(meanMarketMatching, seed + 19), eventList, EventType.MARKET_MATCHING_COMPLETE);
 		servicePoints[2]=new ServicePoint(new Negexp(meanLimitMatching, seed + 22), eventList, EventType.LIMIT_MATCHING_COMPLETE);
@@ -46,7 +53,6 @@ public class MyEngine extends Engine {
 
 		DiscreteGenerator sideGenerator = new Bernoulli(0.5, seed + 42);
 		DiscreteGenerator typeGenerator = new Bernoulli(0.8, seed + 55);
-		/* Normal random walk.*/
 		ContinuousGenerator priceGenerator = new Normal(0.0, priceVolatility * priceVolatility, seed + 62);
 
 		/* Order size variables and generation. We can access these later from the GUI */
@@ -93,6 +99,8 @@ public class MyEngine extends Engine {
 		
 		// Tilastot
 		stats = new StatisticsCollector();
+		matchEngine = new MatchEngine();
+		orderBook = new OrderBook();
 	}
 
 	@Override
@@ -104,41 +112,84 @@ public class MyEngine extends Engine {
 	@Override
 	protected void runEvent(Event t) {  // B phase events
 		// Käsitellään toimeksianto
-		// Also satisfying Ksenia's wish for better naming. ☝️
-		Order order;
 
-		switch ((EventType)t.getType()){
-			case ARRIVAL -> {
-				Order arrivedOrder = t.getOrder();
-				stats.arrival(arrivedOrder);
-				servicePoints[0].add(arrivedOrder);
-				arrivalProcess.generateNext();
-				controller.visualiseCustomer();
-			}
-			case VALIDATION_COMPLETE -> {
-				order = servicePoints[0].finishService();
-				if (order != null) {
-					if (order.getType() == Order.Type.MARKET) {
-						servicePoints[1].add(order);
-					} else {
-						servicePoints[2].add(order);
+			switch ((EventType)t.getType()){
+				case ARRIVAL -> {
+					SimulationEntity arrivedEntity = t.getEntity();
+
+					// Arrival flow expects Order, so we check the concrete type
+					if (arrivedEntity instanceof Order arrivedOrder) {
+						stats.arrival(arrivedOrder);
+						servicePoints[0].add(arrivedOrder);
+						arrivalProcess.generateNext();
+						controller.visualiseCustomer();
+					}
+				}
+				case VALIDATION_COMPLETE -> {
+					SimulationEntity validatedEntity = servicePoints[0].finishService();
+
+					// Validation flow expects an Order, so we check the concrete type
+					if (validatedEntity instanceof Order validatedOrder) {
+						if (validatedOrder.getType() == Order.Type.MARKET) {
+							servicePoints[1].add(validatedOrder);
+						} else {
+							servicePoints[2].add(validatedOrder);
+						}
+					}
+				}
+			case MARKET_MATCHING_COMPLETE -> {
+				SimulationEntity matchedEntity = servicePoints[1].finishService();
+
+				// We can only match orders against the order book, so we check the concrete type
+				if (matchedEntity instanceof Order matchedOrder) {
+					// Use current simulation time for timestamp
+					double now = Clock.getInstance().getTime();
+
+					// Matching returns all trades produced by this order
+					List<Trade> trades = matchEngine.match(matchedOrder, orderBook, now);
+
+					// Send each trade to EXECUTION service point
+					for (Trade trade : trades) {
+						servicePoints[3].add(trade);
+					}
+
+					// If order is done, send it too
+					if (!matchedOrder.isActive()) {
+						servicePoints[3].add(matchedOrder);
 					}
 				}
 			}
-			case MARKET_MATCHING_COMPLETE -> {
-				order = servicePoints[1].finishService();
-				// TODO: match order here
-				if (order != null) servicePoints[3].add(order);
-			}
 			case LIMIT_MATCHING_COMPLETE -> {
-				order = servicePoints[2].finishService();
-				// TODO: match order here
-				if (order != null) servicePoints[3].add(order);
+				SimulationEntity matchedEntity = servicePoints[2].finishService();
+
+				// We can only match orders against the order book, so we check the concrete type
+				if (matchedEntity instanceof Order matchedOrder) {
+					// Use current simulation time for timestamp
+					double now = Clock.getInstance().getTime();
+
+					// Matching returns all trades produced by this order
+					List<Trade> trades = matchEngine.match(matchedOrder, orderBook, now);
+
+					// Send each trade to EXECUTION service point
+					for (Trade trade : trades) {
+						servicePoints[3].add(trade);
+					}
+
+					// If order is done, send it too
+					if (!matchedOrder.isActive()) {
+						servicePoints[3].add(matchedOrder);
+					}
+				}
 			}
 			case EXECUTION_COMPLETE -> {
-				Order finishedOrder = servicePoints[3].finishService();
-				if (finishedOrder != null) {
+				SimulationEntity finishedEntity = servicePoints[3].finishService();
+
+				// EXECUTION service point can contain Trade and Order
+				if (finishedEntity instanceof Order finishedOrder) {
 					stats.completion(finishedOrder, Clock.getInstance().getTime());
+				}
+				if (finishedEntity instanceof Trade finishedTrade) {
+					// TODO stats for finishedTrade
 				}
 			}
 		}

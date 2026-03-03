@@ -6,21 +6,21 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.DisplayName;
 
 import eds.model.EventType;
-import eds.model.Order;
+import eds.model.SimulationEntity;
 
 @DisplayName("Event tests")
 class EventTest {
     @Test
-    @DisplayName("constructor correctly stores type, time and order")
+    @DisplayName("constructor correctly stores type, time and entity")
     void constructorStoresValuesCorrectly() {
         IEventType type = EventType.ARRIVAL;
-        Order order = null;
+        SimulationEntity entity = null;
 
-        Event event = new Event(type, 5.0, order);
+        Event event = new Event(type, 5.0, entity);
 
         assertEquals(type, event.getType());
         assertEquals(5.0, event.getTime());
-        assertEquals(null, event.getOrder());
+        assertEquals(null, event.getEntity());
     }
 
     @Test
