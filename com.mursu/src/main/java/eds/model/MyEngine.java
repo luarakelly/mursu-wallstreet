@@ -6,6 +6,7 @@ import eds.framework.Clock;
 import eds.framework.Engine;
 import eds.framework.Event;
 import eds.framework.ServicePoint;
+import eds.framework.ISimulationEntity;
 import eduni.distributions.Bernoulli;
 import eduni.distributions.ContinuousGenerator;
 import eduni.distributions.DiscreteGenerator;
@@ -115,7 +116,7 @@ public class MyEngine extends Engine {
 
 			switch ((EventType)t.getType()){
 				case ARRIVAL -> {
-					SimulationEntity arrivedEntity = t.getEntity();
+				ISimulationEntity arrivedEntity = t.getEntity();
 
 					// Arrival flow expects Order, so we check the concrete type
 					if (arrivedEntity instanceof Order arrivedOrder) {
@@ -126,7 +127,7 @@ public class MyEngine extends Engine {
 					}
 				}
 				case VALIDATION_COMPLETE -> {
-					SimulationEntity validatedEntity = servicePoints[0].finishService();
+				ISimulationEntity validatedEntity = servicePoints[0].finishService();
 
 					// Validation flow expects an Order, so we check the concrete type
 					if (validatedEntity instanceof Order validatedOrder) {
@@ -138,7 +139,7 @@ public class MyEngine extends Engine {
 					}
 				}
 			case MARKET_MATCHING_COMPLETE -> {
-				SimulationEntity matchedEntity = servicePoints[1].finishService();
+				ISimulationEntity matchedEntity = servicePoints[1].finishService();
 
 				// We can only match orders against the order book, so we check the concrete type
 				if (matchedEntity instanceof Order matchedOrder) {
@@ -160,7 +161,7 @@ public class MyEngine extends Engine {
 				}
 			}
 			case LIMIT_MATCHING_COMPLETE -> {
-				SimulationEntity matchedEntity = servicePoints[2].finishService();
+				ISimulationEntity matchedEntity = servicePoints[2].finishService();
 
 				// We can only match orders against the order book, so we check the concrete type
 				if (matchedEntity instanceof Order matchedOrder) {
@@ -182,7 +183,7 @@ public class MyEngine extends Engine {
 				}
 			}
 			case EXECUTION_COMPLETE -> {
-				SimulationEntity finishedEntity = servicePoints[3].finishService();
+				ISimulationEntity finishedEntity = servicePoints[3].finishService();
 
 				// EXECUTION service point can contain Trade and Order
 				if (finishedEntity instanceof Order finishedOrder) {

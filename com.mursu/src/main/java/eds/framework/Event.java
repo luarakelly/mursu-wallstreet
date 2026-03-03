@@ -1,6 +1,6 @@
 package eds.framework;
 
-import eds.model.SimulationEntity;
+import eds.framework.ISimulationEntity;
 
 /**
  * Represents a simulation event.
@@ -18,7 +18,7 @@ public class Event implements Comparable<Event> {
 	private final double time;
 
 	// entity associated with this event
-	private final SimulationEntity entity;
+	private final ISimulationEntity entity;
 
 	/**
 	 * Creates a new Event.
@@ -27,7 +27,7 @@ public class Event implements Comparable<Event> {
 	 * @param time   the simulation time when the event occurs
 	 * @param entity the simulation entity associated with the event
 	 */
-	public Event(IEventType type, double time, SimulationEntity entity) {
+	public Event(IEventType type, double time, ISimulationEntity entity) {
 		this.type = type;
 		this.time = time;
 		this.entity = entity;
@@ -56,7 +56,7 @@ public class Event implements Comparable<Event> {
 	 *
 	 * @return the related simulation entity
 	 */
-	public SimulationEntity getEntity() {
+	public ISimulationEntity getEntity() {
 		return entity;
 	}
 

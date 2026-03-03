@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.DisplayName;
 
 import eds.model.EventType;
-import eds.model.SimulationEntity;
+import eds.framework.ISimulationEntity;
 
 @DisplayName("Event tests")
 class EventTest {
@@ -14,7 +14,7 @@ class EventTest {
     @DisplayName("constructor correctly stores type, time and entity")
     void constructorStoresValuesCorrectly() {
         IEventType type = EventType.ARRIVAL;
-        SimulationEntity entity = null;
+        ISimulationEntity entity = null;
 
         Event event = new Event(type, 5.0, entity);
 

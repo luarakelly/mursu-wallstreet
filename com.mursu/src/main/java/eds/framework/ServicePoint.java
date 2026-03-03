@@ -2,7 +2,7 @@ package eds.framework;
 
 import eduni.distributions.Negexp;
 import java.util.LinkedList;
-import eds.model.SimulationEntity;
+import eds.framework.ISimulationEntity;
 
 /**
  * Represents a service point.
@@ -15,7 +15,7 @@ import eds.model.SimulationEntity;
 public class ServicePoint {
 
 	// queue of entities waiting for service
-	private final LinkedList<SimulationEntity> queue = new LinkedList<>();
+	private final LinkedList<ISimulationEntity> queue = new LinkedList<>();
 
 	// reference to the simulation event list
 	private final EventList eventList;
@@ -62,7 +62,7 @@ public class ServicePoint {
 	 *
 	 * @param entity the entity to be added
 	 */
-	public void add(SimulationEntity entity) {
+	public void add(ISimulationEntity entity) {
 		queue.add(entity);
 	}
 
@@ -72,8 +72,8 @@ public class ServicePoint {
 	 * @return the entity that has finished service,
 	 *         or null if the queue was empty
 	 */
-	public SimulationEntity finishService() {
-		SimulationEntity finished = queue.poll();
+	public ISimulationEntity finishService() {
+		ISimulationEntity finished = queue.poll();
 		busy = false;
 		return finished;
 	}
