@@ -54,6 +54,7 @@ public class MyEngine extends Engine {
 
 		DiscreteGenerator sideGenerator = new Bernoulli(0.5, seed + 42);
 		DiscreteGenerator typeGenerator = new Bernoulli(0.8, seed + 55);
+		/* Normal random walk.*/
 		ContinuousGenerator priceGenerator = new Normal(0.0, priceVolatility * priceVolatility, seed + 62);
 
 		/* Order size variables and generation. We can access these later from the GUI */
