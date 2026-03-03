@@ -42,11 +42,9 @@ public class MyEngine extends Engine {
 		// Luodaan palvelupisteet
 		servicePoints = new ServicePoint[4];
 
-		/*
-			Each generator receives a unique seed offset to ensure statistically
-			independent random streams. Same base seed always produces identical
-			simulation output — reproducibility is fully preserved.
-		 */
+		/* Each generator receives a unique seed offset to ensure statistically independent random streams.
+		Same base seed always produces identical simulation output —
+		reproducibility is fully preserved.*/
 		servicePoints[0]=new ServicePoint(new Negexp(meanValidation, seed + 88), eventList, EventType.VALIDATION_COMPLETE);
 		servicePoints[1]=new ServicePoint(new Negexp(meanMarketMatching, seed + 19), eventList, EventType.MARKET_MATCHING_COMPLETE);
 		servicePoints[2]=new ServicePoint(new Negexp(meanLimitMatching, seed + 22), eventList, EventType.LIMIT_MATCHING_COMPLETE);
