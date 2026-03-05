@@ -25,9 +25,9 @@ class ServicePointTest {
         }
     }
 
-    @DisplayName("add method starts service process and creates completion event")
+    @DisplayName("add queues entity, startService creates completion event")
     @Test
-    void addStartsServiceAndCreatesEvent() {
+    void addQueuesAndStartServiceCreatesEvent() {
         EventList eventList = new EventList();
         FixedNegexp generator = new FixedNegexp(5.0);
 
@@ -38,14 +38,20 @@ class ServicePointTest {
 
         servicePoint.add(order);
 
+        assertFalse(servicePoint.isBusy());
+        assertTrue(servicePoint.hasOrders());
+        assertTrue(eventList.isEmpty());
+
+        servicePoint.startService();
+
         assertTrue(servicePoint.isBusy());
         assertFalse(eventList.isEmpty());
         assertEquals(15.0, eventList.getNextTime());
     }
 
-    @DisplayName("finishService methond releases current order and starts next if available")
+    @DisplayName("finishService releases current entity, next requires explicit start")
     @Test
-    void finishServiceReleasesAndStartsNext() {
+    void finishServiceReleasesAndRequiresExplicitNextStart() {
         EventList eventList = new EventList();
         FixedNegexp generator = new FixedNegexp(2.0);
 
@@ -58,11 +64,15 @@ class ServicePointTest {
 
         servicePoint.add(order1);
         servicePoint.add(order2);
+        servicePoint.startService();
 
         servicePoint.finishService();
 
-        assertTrue(servicePoint.isBusy());
+        assertFalse(servicePoint.isBusy());
         assertTrue(servicePoint.hasOrders());
+
+        servicePoint.startService();
+        assertTrue(servicePoint.isBusy());
     }
 
     @DisplayName("finishService makes service point idle when queue is empty")
@@ -77,6 +87,7 @@ class ServicePointTest {
         Clock.getInstance().setTime(0.0);
 
         servicePoint.add(order1);
+        servicePoint.startService();
         servicePoint.finishService();
 
         assertFalse(servicePoint.isBusy());

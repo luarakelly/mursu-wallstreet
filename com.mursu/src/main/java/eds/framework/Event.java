@@ -1,12 +1,12 @@
 package eds.framework;
 
-import eds.model.Order;
+import eds.framework.ISimulationEntity;
 
 /**
  * Represents a simulation event.
  *
  * An Event contains a type of event, the simulation time at which it occurs,
- * and the related Order. Events are comparable by time and are
+ * and the related simulation entity. Events are comparable by time and are
  * stored in a priority queue.
  */
 public class Event implements Comparable<Event> {
@@ -17,20 +17,20 @@ public class Event implements Comparable<Event> {
 	// simulation time when the event is occured
 	private final double time;
 
-	// order associated with this event
-	private final Order order;
+	// entity associated with this event
+	private final ISimulationEntity entity;
 
 	/**
 	 * Creates a new Event.
 	 *
-	 * @param type  the type of the event
-	 * @param time  the simulation time when the event occurs
-	 * @param order the order associated with the event
+	 * @param type   the type of the event
+	 * @param time   the simulation time when the event occurs
+	 * @param entity the simulation entity associated with the event
 	 */
-	public Event(IEventType type, double time, Order order) {
+	public Event(IEventType type, double time, ISimulationEntity entity) {
 		this.type = type;
 		this.time = time;
-		this.order = order;
+		this.entity = entity;
 	}
 
 	/**
@@ -52,12 +52,12 @@ public class Event implements Comparable<Event> {
 	}
 
 	/**
-	 * Returns the order associated with this event.
+	 * Returns the simulation entity associated with this event.
 	 *
-	 * @return the related order
+	 * @return the related simulation entity
 	 */
-	public Order getOrder() {
-		return order;
+	public ISimulationEntity getEntity() {
+		return entity;
 	}
 
 	/**

@@ -2,6 +2,7 @@ package eds.model;
 
 import java.util.Locale;
 import java.util.UUID;
+import eds.framework.ISimulationEntity;
 
 /**
  * Represents a single executed trade in the simulation.
@@ -10,7 +11,7 @@ import java.util.UUID;
  * when a buy and a sell order successfully match.
  */
 
-public class Trade {
+public class Trade implements ISimulationEntity {
     /** Unique identifier of the trade. */
     private final String id;
 
