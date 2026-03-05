@@ -114,7 +114,7 @@ class ArrivalProcessTest {
 
         process.generateNext();
         Event event = eventList.remove();
-        Order order = event.getOrder();
+        Order order = (Order) event.getEntity();
 
         assertEquals(EventType.ARRIVAL, event.getType());
         assertNotNull(order);

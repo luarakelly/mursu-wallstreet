@@ -1,6 +1,7 @@
 package eds.model;
 
 import java.util.UUID;
+import eds.framework.ISimulationEntity;
 
 /**
  * Represents a trading order - the main entity flowing through the simulation.
@@ -12,7 +13,7 @@ import java.util.UUID;
  * Lifecycle: NEW -> PARTIAL -> FILLED | CANCELLED.
  */
 
-public class Order {
+public class Order implements ISimulationEntity {
 
     public enum Side {
         BUY, SELL

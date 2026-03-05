@@ -2,20 +2,20 @@ package eds.framework;
 
 import eduni.distributions.Negexp;
 import java.util.LinkedList;
-import eds.model.Order;
+import eds.framework.ISimulationEntity;
 
 /**
  * Represents a service point.
  *
- * A ServicePoint maintains a queue of orders and processes them
+ * A ServicePoint maintains a queue of simulation entities and processes them
  * one at a time. Service times are generated using an exponential
  * distribution (Negexp) by default. When service is completed, a new event
  * is scheduled into the EventList.
  */
 public class ServicePoint {
 
-	// queue of orders waiting for service
-	private final LinkedList<Order> queue = new LinkedList<>();
+	// queue of entities waiting for service
+	private final LinkedList<ISimulationEntity> queue = new LinkedList<>();
 
 	// reference to the simulation event list
 	private final EventList eventList;
@@ -58,25 +58,22 @@ public class ServicePoint {
 	}
 
 	/**
-	 * Adds an order to the service queue.
-	 * If the service point is idle, processing starts immediately.
+	 * Adds a simulation entity to the service queue.
 	 *
-	 * @param order the order to be added
+	 * @param entity the entity to be added
 	 */
-	public void add(Order order) {
-		queue.add(order);
+	public void add(ISimulationEntity entity) {
+		queue.add(entity);
 	}
 
 	/**
-	 * Completes service for the current order.
-	 * If there are remaining orders in the queue,
-	 * processing of the next order begins automatically.
+	 * Completes service for the current simulation entity.
 	 *
-	 * @return the order that has finished service,
+	 * @return the entity that has finished service,
 	 *         or null if the queue was empty
 	 */
-	public Order finishService() {
-		Order finished = queue.poll();
+	public ISimulationEntity finishService() {
+		ISimulationEntity finished = queue.poll();
 		busy = false;
 		return finished;
 	}
@@ -84,14 +81,14 @@ public class ServicePoint {
 	/**
 	 * Returns whether the service point is currently busy.
 	 *
-	 * @return true if processing an order, false otherwise
+	 * @return true if processing an entity, false otherwise
 	 */
 	public boolean isBusy() {
 		return busy;
 	}
 
 	/**
-	 * Checks whether there are orders waiting in the queue.
+	 * Checks whether there are entities waiting in the queue.
 	 *
 	 * @return true if the queue is not empty
 	 */
@@ -100,7 +97,26 @@ public class ServicePoint {
 	}
 
 	/**
-	 * Starts service for the next order in the queue.
+	 * Returns the current number of entities waiting in the queue.
+	 * The entity currently in service (if any) is not counted as waiting.
+	 *
+	 * @return number of waiting entities
+	 */
+	public int getQueueLength() {
+		return Math.max(0, queue.size() - (busy ? 1 : 0));
+	}
+
+	/**
+	 * Returns the current internal queue size, including the entity in service.
+	 *
+	 * @return total number of queued entities
+	 */
+	public int getQueueSize() {
+		return queue.size();
+	}
+
+	/**
+	 * Starts service for the next entity in the queue.
 	 * Generates a service completion event and schedules it
 	 * in the EventList.
 	 */
