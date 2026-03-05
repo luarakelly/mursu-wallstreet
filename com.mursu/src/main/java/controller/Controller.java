@@ -49,12 +49,12 @@ public class Controller implements IControllerVtoM, IControllerMtoV {   // NEW
 	
 	@Override
 	public void decreaseSpeed() { // hidastetaan moottorisäiettä
-		engine.setDelay((long)(engine.getDelay()*1.10));
+		// engine.setDelay((long)(engine.getDelay()*1.10));
 	}
 
 	@Override
 	public void increaseSpeed() { // nopeutetaan moottorisäiettä
-		engine.setDelay((long)(engine.getDelay()*0.9));
+		// engine.setDelay((long)(engine.getDelay()*0.9));
 	}
 
 
@@ -63,11 +63,11 @@ public class Controller implements IControllerVtoM, IControllerMtoV {   // NEW
 	 */
 	@Override
 	public void showEndTime(double time) {
-		Platform.runLater(()->ui.setEndingTime(time));
+		// Platform.runLater(()->ui.setEndingTime(time));
 	}
 
 	@Override
-	public void visualiseCustomer() {
-		Platform.runLater(() -> ui.getVisualisation().newCustomer());
+	public void visualiseEntity() {
+		// Platform.runLater(() -> ui.getVisualisation().newCustomer());
 	}
 }

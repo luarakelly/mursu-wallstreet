@@ -122,7 +122,7 @@ public class MyEngine extends Engine {
 						stats.arrival(arrivedOrder);
 						servicePoints[0].add(arrivedOrder);
 						arrivalProcess.generateNext();
-						controller.visualiseCustomer();
+						controller.visualiseEntity();
 					}
 				}
 				case VALIDATION_COMPLETE -> {

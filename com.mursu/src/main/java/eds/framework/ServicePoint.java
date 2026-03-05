@@ -97,6 +97,25 @@ public class ServicePoint {
 	}
 
 	/**
+	 * Returns the current number of entities waiting in the queue.
+	 * The entity currently in service (if any) is not counted as waiting.
+	 *
+	 * @return number of waiting entities
+	 */
+	public int getQueueLength() {
+		return Math.max(0, queue.size() - (busy ? 1 : 0));
+	}
+
+	/**
+	 * Returns the current internal queue size, including the entity in service.
+	 *
+	 * @return total number of queued entities
+	 */
+	public int getQueueSize() {
+		return queue.size();
+	}
+
+	/**
 	 * Starts service for the next entity in the queue.
 	 * Generates a service completion event and schedules it
 	 * in the EventList.
