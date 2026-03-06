@@ -38,13 +38,14 @@ public abstract class Engine extends Thread implements IEngine {
 	@Override
 	public void run() {
 		// Aloitetaas
-		initialization(); // creating, e.g., the first event
+		initialization(); // creating he first event
 
 		while (simulate()){
 			delay(); 
 			clock.setTime(currentTime());
 			runBEvents();
 			tryCEvents();
+			afterCycle();
 		}
 
 		results();
@@ -85,5 +86,6 @@ public abstract class Engine extends Thread implements IEngine {
 
 	protected abstract void initialization(); 	
 	protected abstract void runEvent(Event t);	
+	protected void afterCycle() {}
 	protected abstract void results(); 			
 }
