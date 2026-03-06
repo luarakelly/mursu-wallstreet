@@ -59,7 +59,11 @@ class MyEngineTest {
         assertTrue(snapshot.totalArrivedOrders() > 0);
         assertTrue(snapshot.totalExecutedOrders() >= 0);
         assertTrue(snapshot.remainingOrdersInBook() >= 0);
+        assertTrue(snapshot.totalTrades() >= 0);
+        assertTrue(snapshot.vwap() >= 0.0);
         assertTrue(snapshot.averageMidPrice() >= 0.0);
+        assertTrue(snapshot.minPrice() >= 0.0);
+        assertTrue(snapshot.maxPrice() >= 0.0);
         assertTrue(snapshot.averageSpread() >= 0.0);
         assertTrue(snapshot.throughput() >= 0.0);
         assertTrue(snapshot.averageWaitingTime() >= 0.0);

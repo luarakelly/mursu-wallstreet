@@ -11,7 +11,11 @@ public class StatisticsCollector {
 			long totalArrivedOrders,
 			long totalExecutedOrders,
 			int remainingOrdersInBook,
+			long totalTrades,
+			double vwap,
 			double averageMidPrice,
+			double minPrice,
+			double maxPrice,
 			double averageSpread,
 			double throughput,
 			double averageWaitingTime,
@@ -30,10 +34,15 @@ public class StatisticsCollector {
 	private long totalExecuted = 0;
 	private long totalFilled = 0;
 	private long totalCancelled = 0;
+	private long totalTrades = 0;
 
 	// Timing
 	private double totalWaitingTime = 0.0;
 	private double firstArrivalTime = Double.NaN;
+	private double totalTradedNotional = 0.0;
+	private long totalTradedShares = 0;
+	private double minTradePrice = Double.POSITIVE_INFINITY;
+	private double maxTradePrice = Double.NEGATIVE_INFINITY;
 
 	// Order book sampling
 	private int remainingOrdersInBook = 0;
@@ -97,6 +106,15 @@ public class StatisticsCollector {
 		}
 	}
 
+	/*Track completed trades.*/
+	public void trade(Trade trade) {
+		totalTrades++;
+		totalTradedShares += trade.getShareSize();
+		totalTradedNotional += trade.getPrice() * trade.getShareSize();
+		minTradePrice = Math.min(minTradePrice, trade.getPrice());
+		maxTradePrice = Math.max(maxTradePrice, trade.getPrice());
+	}
+
 	/*Capture service point utilization and queue accumulation.*/
 	public void observeServicePoints(ServicePoint[] servicePoints) {
 		if (servicePoints == null) {
@@ -118,9 +136,8 @@ public class StatisticsCollector {
 		}
 	}
 
-	/*Create an immutable snapshot that can be saved into a database.*/
-	public Snapshot buildSnapshot(double simulationEndTime, OrderBook.OrderBookSnapshot finalOrderBookSnapshot) {
-		observeOrderBook(finalOrderBookSnapshot);
+	/*Create an snapshot that can be saved into a database.*/
+	public Snapshot buildSnapshot(double simulationEndTime) {
 
 		double avgMidPrice = midPriceSamples > 0 ? totalMidPrice / midPriceSamples : 0.0;
 		double avgSpread = spreadSamples > 0 ? totalSpread / spreadSamples : 0.0;
@@ -130,6 +147,9 @@ public class StatisticsCollector {
 		double elapsed = Math.max(0.0, simulationEndTime - effectiveStart);
 		double throughput = elapsed > 0.0 ? totalExecuted / elapsed : 0.0;
 		double fillRate = totalArrivals > 0 ? (double) totalFilled / totalArrivals : 0.0;
+		double vwap = totalTradedShares > 0 ? totalTradedNotional / totalTradedShares : 0.0;
+		double minPrice = totalTrades > 0 ? minTradePrice : 0.0;
+		double maxPrice = totalTrades > 0 ? maxTradePrice : 0.0;
 
 		List<Double> utilizationPerServicePoint = new ArrayList<>(servicePointCount);
 		List<Double> averageQueuePerServicePoint = new ArrayList<>(servicePointCount);
@@ -162,7 +182,11 @@ public class StatisticsCollector {
 				totalArrivals,
 				totalExecuted,
 				remainingOrdersInBook,
+				totalTrades,
+				vwap,
 				avgMidPrice,
+				minPrice,
+				maxPrice,
 				avgSpread,
 				throughput,
 				avgWaitingTime,

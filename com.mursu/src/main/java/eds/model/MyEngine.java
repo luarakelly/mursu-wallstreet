@@ -196,7 +196,7 @@ public class MyEngine extends Engine {
 					stats.completion(finishedOrder, Clock.getInstance().getTime());
 				}
 				if (finishedEntity instanceof Trade finishedTrade) {
-					// TODO stats for finishedTrade
+					stats.trade(finishedTrade);
 				}
 			}
 		}
@@ -204,7 +204,7 @@ public class MyEngine extends Engine {
 
 	@Override
 	protected void results() {
-		latestSnapshot = stats.buildSnapshot(Clock.getInstance().getTime(), orderBook.getSnapshot());
+		latestSnapshot = stats.buildSnapshot(Clock.getInstance().getTime());
 		controller.showEndTime(Clock.getInstance().getTime());
 		System.out.println("-----Simulation Statistics-----");
 		System.out.println(latestSnapshot);
