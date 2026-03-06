@@ -1,20 +1,20 @@
 package eds.model;
 
+import java.util.List;
+
 import controller.IControllerMtoV;
 import eds.framework.ArrivalProcess;
 import eds.framework.Clock;
 import eds.framework.Engine;
 import eds.framework.Event;
-import eds.framework.ServicePoint;
 import eds.framework.ISimulationEntity;
+import eds.framework.ServicePoint;
 import eduni.distributions.Bernoulli;
 import eduni.distributions.ContinuousGenerator;
 import eduni.distributions.DiscreteGenerator;
 import eduni.distributions.LogNormal;
 import eduni.distributions.Negexp;
 import eduni.distributions.Normal;
-
-import java.util.List;
 
 
 
@@ -24,6 +24,7 @@ public class MyEngine extends Engine {
 	private StatisticsCollector stats;
 	private IMatchEngine matchEngine;
 	private OrderBook orderBook;
+	private StatisticsCollector.Snapshot latestSnapshot;
 
 	public MyEngine(
 			IControllerMtoV controller,
@@ -98,7 +99,7 @@ public class MyEngine extends Engine {
 		);
 		
 		// Tilastot
-		stats = new StatisticsCollector();
+		stats = new StatisticsCollector(servicePoints.length);
 		matchEngine = new MatchEngine();
 		orderBook = new OrderBook();
 	}
@@ -107,6 +108,12 @@ public class MyEngine extends Engine {
 	protected void initialization() {
 		// Ensimmäinen toimeksianto
 		arrivalProcess.generateNext();
+	}
+
+	@Override
+	protected void afterCycle() {
+		stats.observeServicePoints(servicePoints);
+		stats.observeOrderBook(orderBook.getSnapshot());
 	}
 
 	@Override
@@ -189,7 +196,7 @@ public class MyEngine extends Engine {
 					stats.completion(finishedOrder, Clock.getInstance().getTime());
 				}
 				if (finishedEntity instanceof Trade finishedTrade) {
-					// TODO stats for finishedTrade
+					stats.trade(finishedTrade);
 				}
 			}
 		}
@@ -197,8 +204,13 @@ public class MyEngine extends Engine {
 
 	@Override
 	protected void results() {
+		latestSnapshot = stats.buildSnapshot(Clock.getInstance().getTime());
 		controller.showEndTime(Clock.getInstance().getTime());
 		System.out.println("-----Simulation Statistics-----");
-		System.out.println(stats);
+		System.out.println(latestSnapshot);
+	}
+
+	public StatisticsCollector.Snapshot getStatisticsSnapshot() {
+		return latestSnapshot;
 	}
 }
