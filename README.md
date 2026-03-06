@@ -12,13 +12,13 @@ Interactive Java-based stock exchange order book simulator with real-time visual
 - EventList ✅
 - ServicePoint ✅
 - Trade ✅
+- PerformanceDescriber ✅
 
 ### Luara 
 - Order ✅
 - OrderBook ✅
 - Matching ✅
 - Database ✅
-- PerformanceDescriber
 - StatisticsReportRepo
 - Records
 
