@@ -6,14 +6,47 @@ import java.util.Optional;
 import java.util.OptionalDouble;
 
 /**
- * MatchingEngine processes incoming orders against an OrderBook.
- * - Executes trades if matching counterpart orders exist
- * - Routes unfilled LIMIT orders to the resting book
- * - Cancels unfilled MARKET orders immediately
+ * Matching engine responsible for executing incoming orders against the
+ * current {@link OrderBook}.
+ *
+ * <p>
+ * The engine follows standard price-time priority rules:
+ * </p>
+ *
+ * <ul>
+ * <li>Incoming orders are matched against the best available price.</li>
+ * <li>Execution price is always the price of the resting order.</li>
+ * <li>If an order cannot be fully matched, remaining behavior depends on the
+ * order type.</li>
+ * </ul>
+ *
+ * <p>
+ * Post-matching behavior:
+ * </p>
+ *
+ * <ul>
+ * <li>Remaining {@link Order.Type#LIMIT} orders are added to the order
+ * book.</li>
+ * <li>Remaining {@link Order.Type#MARKET} orders are cancelled
+ * immediately.</li>
+ * </ul>
  */
 public class MatchEngine implements IMatchEngine {
 
-    // Main method to process an incoming order
+    /**
+     * Processes an incoming order and attempts to match it against the order book.
+     *
+     * <p>
+     * If matching counterpart orders exist, trades are generated until the
+     * order is filled or no further matches are possible.
+     * </p>
+     *
+     * @param incoming    the order entering the market
+     * @param book        the order book containing resting orders
+     * @param currentTime the simulation timestamp of the event
+     *
+     * @return a list of {@link Trade} objects representing executed trades
+     */
     public List<Trade> match(Order incoming, OrderBook book, double currentTime) {
 
         List<Trade> trades = new ArrayList<>();
@@ -35,7 +68,34 @@ public class MatchEngine implements IMatchEngine {
     }
 
     // ── BUY -match against best asks ────────────────────────────────────────────
+
+    /**
+     * Attempts to match an incoming BUY order against resting SELL orders.
+     *
+     * <p>
+     * The engine repeatedly matches the order against the best ask price
+     * while the order remains active and matching conditions are satisfied.
+     * </p>
+     *
+     * <p>
+     * For {@link Order.Type#LIMIT} orders, execution only occurs if:
+     * </p>
+     *
+     * <pre>
+     * buyPrice ≥ bestAskPrice
+     * </pre>
+     *
+     * <p>
+     * The execution price is always the price of the resting ask order.
+     * </p>
+     *
+     * @param buy         the incoming buy order
+     * @param book        the order book containing resting orders
+     * @param trades      the list where generated trades are recorded
+     * @param currentTime the simulation timestamp of the trade
+     */
     private void matchBuy(Order buy, OrderBook book, List<Trade> trades, double currentTime) {
+
         while (buy.isActive() && book.hasAsks()) {
 
             OptionalDouble bestAskPriceOpt = book.getBestAskPrice();
@@ -77,7 +137,34 @@ public class MatchEngine implements IMatchEngine {
     }
 
     // ── SELL -match against best bids ──────────────────────────────────────────
+
+    /**
+     * Attempts to match an incoming SELL order against resting BUY orders.
+     *
+     * <p>
+     * The engine repeatedly matches the order against the best bid price
+     * while the order remains active and matching conditions are satisfied.
+     * </p>
+     *
+     * <p>
+     * For {@link Order.Type#LIMIT} orders, execution only occurs if:
+     * </p>
+     *
+     * <pre>
+     * sellPrice ≤ bestBidPrice
+     * </pre>
+     *
+     * <p>
+     * The execution price is always the price of the resting bid order.
+     * </p>
+     *
+     * @param sell        the incoming sell order
+     * @param book        the order book containing resting orders
+     * @param trades      the list where generated trades are recorded
+     * @param currentTime the simulation timestamp of the trade
+     */
     private void matchSell(Order sell, OrderBook book, List<Trade> trades, double currentTime) {
+
         while (sell.isActive() && book.hasBids()) {
 
             OptionalDouble bestBidPriceOpt = book.getBestBidPrice();
