@@ -3,23 +3,36 @@ package eds.model;
 import java.util.List;
 
 /**
- * Stateless domain engine interface for order matching.
+ * Stateless domain service for order matching.
  *
- * The matching engine accepts an incoming order, matches it against
- * the OrderBook, and returns all Trade executions produced in that pass.
+ * <p>
+ * The matching engine accepts an incoming {@link Order}, attempts to match
+ * it against the current {@link OrderBook}, and produces zero or more
+ * {@link Trade} executions.
+ * </p>
  *
- * MyEngine calls this once per MARKET_MATCHING_COMPLETE and
- * LIMIT_MATCHING_COMPLETE event.
+ * <p>
+ * The implementation may modify the provided order book during the
+ * matching process and update the state of the involved orders.
+ * </p>
  */
 public interface IMatchEngine {
 
     /**
-     * Matches an incoming order against the book and returns all trades produced.
+     * Attempts to match an incoming order against the order book.
      *
-     * @param incoming    the order incoming the matching service point
-     * @param book        the live order book (mutated during matching)
-     * @param currentTime simulation clock time at moment of matching
-     * @return list of trades executed; empty if no match was possible
+     * <p>
+     * If compatible counterpart orders exist, one or more trades may
+     * be generated. The method returns all executions produced during
+     * the matching operation.
+     * </p>
+     *
+     * @param incoming    the incoming order to be matched
+     * @param book        the active order book used for matching
+     * @param currentTime the simulation timestamp at which matching occurs
+     *
+     * @return a list of {@link Trade} objects representing executed trades;
+     *         empty if no matches were possible
      */
     List<Trade> match(Order incoming, OrderBook book, double currentTime);
 }
