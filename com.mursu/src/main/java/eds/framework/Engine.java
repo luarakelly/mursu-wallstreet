@@ -1,8 +1,8 @@
 package eds.framework;
 
-import controller.IControllerMtoV;
+import controller.Controller;
 
-public abstract class Engine extends Thread implements IEngine {
+public abstract class Engine extends Thread {
 	// Simulaation kesto
 	private double simulationTime = 0;	// time when the simulation will be stopped
 
@@ -12,31 +12,31 @@ public abstract class Engine extends Thread implements IEngine {
 	
 	protected EventList eventList;
 	protected ServicePoint[] servicePoints;
-	protected IControllerMtoV controller; 
+	protected Controller controller; 
 
-	public Engine(IControllerMtoV controller) {	
+	public Engine(Controller controller) {	
 		this.controller = controller;  			
 		clock = Clock.getInstance();
 		eventList = new EventList();
 	}
 
-	@Override
-	public void setSimulationTime(double time) {
+		public void setSimulationTime(double time) {
 		simulationTime = time;
 	}
 	
-	@Override 
-	public void setDelay(long time) {
+		public void setDelay(long time) {
 		this.delay = time;
 	}
 	
-	@Override 
-	public long getDelay() {
+		public long getDelay() {
 		return delay;
 	}
 	
 	@Override
 	public void run() {
+		// reset clock for a new run
+		clock.setTime(0.0);
+
 		// Aloitetaas
 		initialization(); // creating he first event
 
@@ -63,7 +63,18 @@ public abstract class Engine extends Thread implements IEngine {
 			if (!p.isBusy() && p.hasOrders()) {
 				p.startService();
 			}
-}
+		}
+	}
+
+		public int[] getQueueLengths() {
+		if (servicePoints == null) {
+			return new int[0];
+		}
+		int[] queueLengths = new int[servicePoints.length];
+		for (int i = 0; i < servicePoints.length; i++) {
+			queueLengths[i] = servicePoints[i].getQueueLength();
+		}
+		return queueLengths;
 	}
 
 	private double currentTime(){
