@@ -12,7 +12,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="600.0" minWidth="800.0" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="600.0" minWidth="800.0" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.MainViewController">
    <top>
       <HBox alignment="TOP_CENTER" prefHeight="100.0" prefWidth="200.0" BorderPane.alignment="CENTER">
          <children>
@@ -134,33 +134,6 @@
                               </HBox>
                            </children>
                         </HBox>
-                        <VBox alignment="TOP_CENTER" VBox.vgrow="NEVER">
-                           <children>
-                              <Label text="Shares Distribution precentage" VBox.vgrow="NEVER" />
-                              <HBox alignment="TOP_CENTER" prefHeight="100.0" prefWidth="200.0" spacing="10.0" VBox.vgrow="NEVER">
-                                 <children>
-                                    <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
-                                       <children>
-                                          <Label maxWidth="-Infinity" text="Small" />
-                                          <TextField fx:id="inputDistriSmall" maxWidth="50.0" />
-                                       </children>
-                                    </HBox>
-                                    <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
-                                       <children>
-                                          <Label maxWidth="-Infinity" text="Medium" />
-                                          <TextField fx:id="inputDistriMedium" maxWidth="50.0" />
-                                       </children>
-                                    </HBox>
-                                    <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
-                                       <children>
-                                          <Label maxWidth="-Infinity" text="Large" />
-                                          <TextField fx:id="inputDistriLarge" maxWidth="50.0" />
-                                       </children>
-                                    </HBox>
-                                 </children>
-                              </HBox>
-                           </children>
-                        </VBox>
                         <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
                            <children>
                               <Label maxWidth="-Infinity" prefWidth="100.0" text="Seed (optional)" />
@@ -190,12 +163,6 @@
                                  <children>
                                     <Label maxWidth="-Infinity" prefWidth="70.0" text="Initial price" />
                                     <TextField fx:id="inputInitialPrice" maxWidth="50.0" />
-                                 </children>
-                              </HBox>
-                              <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
-                                 <children>
-                                    <Label maxWidth="-Infinity" prefWidth="70.0" text="Min liquidity" />
-                                    <TextField fx:id="inputMinLiq" maxWidth="50.0" />
                                  </children>
                               </HBox>
                            </children>

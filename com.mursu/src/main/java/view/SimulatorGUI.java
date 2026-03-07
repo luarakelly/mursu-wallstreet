@@ -12,8 +12,14 @@ public class SimulatorGUI extends Application {
 	public void start(Stage stage) throws Exception {
 		FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/main_view.fxml"));
 		Parent root = fxmlLoader.load();
+		double stageHeight = 600;
+		double stageWidth = 800;
 
 		stage.setScene(new Scene(root));
+		stage.setHeight(stageHeight);
+		stage.setMinHeight(stageHeight);
+		stage.setWidth(stageWidth);
+		stage.setMinWidth(stageWidth);
 		stage.show();
 	}
 
