@@ -64,6 +64,9 @@
                         eds.model,
 
                         <!-- Javadoc for controller -->
+                        eds.database,
+
+                        <!-- Javadoc for controller -->
                         <!-- controller,-->
 
                         <!-- Javadoc for view -->

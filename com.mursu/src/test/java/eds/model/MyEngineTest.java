@@ -45,8 +45,8 @@ class MyEngineTest {
                 0.2,
                 100.0,
                 0.2,
-                0.01
-        );
+                0.01,
+                "Test Run");
 
         engine.setDelay(0);
         engine.setSimulationTime(3.0);
