@@ -2,7 +2,7 @@ package eds.model;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import eds.database.Records.TradeRecord;
 import eds.framework.ServicePoint;
 
 /* Aggregates simulation metrics and provides a structured snapshot for persistence/reporting. */
@@ -25,8 +25,8 @@ public class StatisticsCollector {
 			List<Double> averageQueueLengthPerServicePoint,
 			boolean bottleneckDetected,
 			int bottleneckServicePointIndex,
-			double bottleneckAverageQueueLength
-	) {
+			double bottleneckAverageQueueLength,
+			List<TradeRecord> trades) {
 	}
 
 	// Counters
@@ -57,6 +57,9 @@ public class StatisticsCollector {
 	private final long[] servicePointBusySamples;
 	private final double[] totalQueueLength;
 
+	// Trade collection for persistence
+	private final List<TradeRecord> collectedTrades = new ArrayList<>();
+
 	public StatisticsCollector() {
 		this(4);
 	}
@@ -68,7 +71,7 @@ public class StatisticsCollector {
 		this.totalQueueLength = new double[this.servicePointCount];
 	}
 
-	/*Track new order arrival.*/
+	/* Track new order arrival. */
 	public void arrival(Order order) {
 		totalArrivals++;
 		if (Double.isNaN(firstArrivalTime)) {
@@ -76,7 +79,7 @@ public class StatisticsCollector {
 		}
 	}
 
-	/*Track order completion.*/
+	/* Track order completion. */
 	public void completion(Order order, double completionTime) {
 		totalExecuted++;
 
@@ -90,7 +93,7 @@ public class StatisticsCollector {
 		totalWaitingTime += waitingTime;
 	}
 
-	/*Capture order book dependent metrics.*/
+	/* Capture order book dependent metrics. */
 	public void observeOrderBook(OrderBook.OrderBookSnapshot snapshot) {
 		remainingOrdersInBook = snapshot.bids().stream().mapToInt(OrderBook.PriceLevel::orderCount).sum()
 				+ snapshot.asks().stream().mapToInt(OrderBook.PriceLevel::orderCount).sum();
@@ -106,7 +109,7 @@ public class StatisticsCollector {
 		}
 	}
 
-	/*Track completed trades.*/
+	/* Track completed trades. */
 	public void trade(Trade trade) {
 		totalTrades++;
 		totalTradedShares += trade.getShareSize();
@@ -115,7 +118,7 @@ public class StatisticsCollector {
 		maxTradePrice = Math.max(maxTradePrice, trade.getPrice());
 	}
 
-	/*Capture service point utilization and queue accumulation.*/
+	/* Capture service point utilization and queue accumulation. */
 	public void observeServicePoints(ServicePoint[] servicePoints) {
 		if (servicePoints == null) {
 			return;
@@ -136,7 +139,7 @@ public class StatisticsCollector {
 		}
 	}
 
-	/*Create an snapshot that can be saved into a database.*/
+	/* Create an snapshot that can be saved into a database. */
 	public Snapshot buildSnapshot(double simulationEndTime) {
 
 		double avgMidPrice = midPriceSamples > 0 ? totalMidPrice / midPriceSamples : 0.0;
@@ -196,8 +199,8 @@ public class StatisticsCollector {
 				List.copyOf(averageQueuePerServicePoint),
 				bottleneckDetected,
 				bottleneckIndex,
-				bottleneckQueue
-		);
+				bottleneckQueue,
+				List.copyOf(collectedTrades));
 	}
 
 	@Override
