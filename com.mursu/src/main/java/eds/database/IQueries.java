@@ -48,7 +48,7 @@ public interface IQueries {
     List<StatisticsAndMetricsRecord> findAll();
 
     /**
-     * Returns a single run by id, or null if not found.
+     * Returns a single run by id, or Optional.empty() if not found.
      */
     Optional<StatisticsAndMetricsRecord> findById(int id);
 
