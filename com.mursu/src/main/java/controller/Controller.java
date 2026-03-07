@@ -2,37 +2,36 @@ package controller;
 
 import eds.database.Records.StatisticsAndMetricsRecord;
 import eds.framework.Clock;
-
 import eds.config.SimulationConfig;
-
 import eds.model.MyEngine;
 import eds.model.OrderBook;
 import eds.model.StatisticsCollector;
 import javafx.application.Platform;
 
 /**
- * Controls the simulation logic (mostly for the simulation page).
+ * Controls the simulation logic for the simulation page.
  * This class creates the engine, starts the run, changes speed,
  * pauses and resumes the run, and sends engine updates to the UI.
  */
 public class Controller {
-    // Used to send simulation updates to the simulation page.
+    // SimulationPageController creates this class and receives UI updates from it.
     private final SimulationPageController simulationPageController;
 
-    // Used to start the simulation and control its speed.
+    // startSimulation(...) creates MyEngine and stores it here.
     private MyEngine engine;
 
-    // Used for pause and resume the simulation.
+    // togglePause() uses these fields to remember pause state and old delay.
     private boolean isPaused = false;
     private long delayBeforePause;
 
     /**
-     * Creates the main controller for one simulation page.
+     * Creates a controller for one simulation page.
      *
      * @param simulationPageController the simulation page that receives UI updates
      */
     public Controller(SimulationPageController simulationPageController) {
-        // Save the simulation page controller so we can update the screen later.
+        // SimulationPageController.initialize() creates this object.
+        // This reference is stored so this class can update that page later.
         this.simulationPageController = simulationPageController;
     }
 
@@ -41,10 +40,9 @@ public class Controller {
      *
      * @param config the full set of values for the simulation run
      */
-    // SimulationPageController calls startSimulation() when the simulation page starts.
-    // It creates MyEngine, sets the run values, and starts the simulation thread.
     public void startSimulation(SimulationConfig config) {
-        // Create the engine with values from the selected config.
+        // SimulationPageController.startSimulation() calls this method.
+        // This is the place where MyEngine is created for the selected run.
         engine = new MyEngine(
                 this,
                 config.seed(),
@@ -61,61 +59,56 @@ public class Controller {
                 config.title()
         );
 
-        // Set run length and speed, then start the engine thread.
+        // These values are copied from the page config into the engine before start.
         engine.setSimulationTime(config.simulationTime());
-
         engine.setDelay(config.delay());
 
-        // Start the engine thread.
+        // MyEngine extends Thread, so the simulation starts here in a separate thread.
         ((Thread) engine).start();
     }
 
     /**
      * Makes the simulation slower by increasing the delay.
      */
-    // SimulationPageController calls decreaseSpeed() when the user presses Slow Down button.
-    // It increases delay so the simulation moves more slowly.
     public void decreaseSpeed() {
-        // Slow down means a larger delay value.
+        // SimulationPageController.handleSlowDown() calls this method.
+        // It increases delay so one simulation step waits longer.
         if (engine == null) {
             return;
         }
 
-        // Increase delay by 20 percent to make the simulation slower.
         long newDelay = Math.max(0, Math.round(engine.getDelay() * 1.2));
-
         engine.setDelay(newDelay);
 
-        // Wake the engine thread so the new delay is used right away.
+        // The engine may be sleeping on the old delay now.
+        // interrupt() wakes it up so the new delay starts immediately.
         ((Thread) engine).interrupt();
     }
 
     /**
      * Makes the simulation faster by decreasing the delay.
      */
-    // SimulationPageController calls increaseSpeed() when the user presses Speed Up button.
-    // It decreases delay so the simulation moves more quickly.
     public void increaseSpeed() {
-        // Speed up means a smaller delay value.
+        // SimulationPageController.handleSpeedUp() calls this method.
+        // It decreases delay so one simulation step waits less.
         if (engine == null) {
             return;
         }
 
-        // Decrease delay by 20 percent to make the simulation faster.
         long newDelay = Math.max(0, Math.round(engine.getDelay() * 0.8));
         engine.setDelay(newDelay);
 
-        // Wake the engine thread so the new delay is used right away.
+        // The engine may be sleeping on the old delay now.
+        // interrupt() wakes it up so the new delay starts immediately.
         ((Thread) engine).interrupt();
     }
 
     /**
      * Pauses the simulation or resumes it if it is already paused.
      */
-    // SimulationPageController calls this when the user presses Pause or Resume.
-    // It changes the engine delay and updates the button text on the page.
     public void togglePause() {
-        // Pause is done by storing the old delay and using a new very large delay.
+        // SimulationPageController.handlePause() calls this method.
+        // It changes engine delay and then changes the pause button text on the page.
         if (engine == null) {
             return;
         }
@@ -127,10 +120,12 @@ public class Controller {
             engine.setDelay(1000000); // ms
         } else {
             engine.setDelay(delayBeforePause);
+
+            // The engine may still be sleeping on the pause delay.
+            // interrupt() wakes it up so resume works right away.
             ((Thread) engine).interrupt();
         }
 
-        // Change the button text with the current state.
         simulationPageController.setPauseButtonText(isPaused ? "Resume" : "Pause");
     }
 
@@ -139,31 +134,30 @@ public class Controller {
      *
      * @param time the final simulation time reported by the engine
      */
-    // MyEngine calls showEndTime() when the simulation run ends.
-    // It reads the final data from the engine and opens the results page.
     public void showEndTime(double time) {
-        // Read final statistics from the engine and open the results page through showResultsPage.
+        // MyEngine.results() calls this method after the run ends.
+        // The final snapshot and database record are read from MyEngine here.
         final StatisticsCollector.Snapshot snapshot = engine.getStatisticsSnapshot();
         final StatisticsAndMetricsRecord record = engine.getStatisticsRecord();
 
-        // The engine finishes the simulation in its own thread, not in the JavaFX UI thread.
-        // Platform.runLater() moves these UI updates to the JavaFX UI thread.
+        // MyEngine runs in its own thread, not in the JavaFX UI thread.
+        // UI pages and controls can be changed only from the JavaFX UI thread.
+        // Platform.runLater(...) moves this page change to the correct thread.
         Platform.runLater(() -> simulationPageController.showResultsPage(snapshot, record));
     }
 
     /**
      * Updates the timer and queue labels on the simulation page.
      */
-    // MyEngine calls updateTimeAndQueues() this after a new arrival event.
-    // It updates the timer and the queue labels on the simulation page.
     public void updateTimeAndQueues() {
-        final int[] queueLengths = engine.getQueueLengths();
+        // MyEngine.runEvent() calls this after a new ARRIVAL event.
+        // It reads queue data from the engine and updates timer and queue labels.
+        final int[] queueLengths = engine == null ? null : engine.getQueueLengths();
 
-        // The engine updates queues in its own thread.
-        // Platform.runLater() moves these UI updates to the JavaFX UI thread.
+        // The engine calculates this in its own thread.
+        // Platform.runLater(...) moves the label updates to the JavaFX UI thread.
         Platform.runLater(() -> {
             simulationPageController.updateSimulationTime(Clock.getInstance().getTime());
-
             if (queueLengths != null) {
                 simulationPageController.updateQueueLengths(queueLengths);
             }
@@ -175,12 +169,12 @@ public class Controller {
      *
      * @param snapshot the latest order book state from the engine
      */
-    // MyEngine calls updateOrderBook() after each cycle when a new order book snapshot is ready.
-    // It sends that snapshot to the table of sells and buys on the simulation page.
     public void updateOrderBook(OrderBook.OrderBookSnapshot snapshot) {
+        // MyEngine.afterCycle() calls this method after each simulation cycle.
+        // It sends the newest order book snapshot to the table on the simulation page.
 
-        // The order book table is part of the UI,
-        // so this update must also run in the JavaFX UI thread.
+        // The table is a JavaFX UI element,
+        // so this update must run in the JavaFX UI thread.
         Platform.runLater(() -> simulationPageController.showOrderBook(snapshot));
     }
 }
