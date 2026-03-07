@@ -17,6 +17,12 @@ import java.util.List;
  * </p>
  */
 public interface IMatchEngine {
+    /**
+     * Stores both results of one matching step:
+     * the trades that were created and the orders that became completed.
+     */
+    record MatchResult(List<Trade> trades, List<Order> completedOrders) {
+    }
 
     /**
      * Attempts to match an incoming order against the order book.
@@ -31,8 +37,7 @@ public interface IMatchEngine {
      * @param book        the active order book used for matching
      * @param currentTime the simulation timestamp at which matching occurs
      *
-     * @return a list of {@link Trade} objects representing executed trades;
-     *         empty if no matches were possible
+     * @return trades and fully completed resting orders from the match
      */
-    List<Trade> match(Order incoming, OrderBook book, double currentTime);
+    MatchResult match(Order incoming, OrderBook book, double currentTime);
 }

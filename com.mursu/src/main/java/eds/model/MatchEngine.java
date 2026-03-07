@@ -47,14 +47,15 @@ public class MatchEngine implements IMatchEngine {
      *
      * @return a list of {@link Trade} objects representing executed trades
      */
-    public List<Trade> match(Order incoming, OrderBook book, double currentTime) {
+    public MatchResult match(Order incoming, OrderBook book, double currentTime) {
 
         List<Trade> trades = new ArrayList<>();
+        List<Order> completedOrders = new ArrayList<>();
 
         if (incoming.getSide() == Order.Side.BUY) {
-            matchBuy(incoming, book, trades, currentTime);
+            matchBuy(incoming, book, trades, completedOrders, currentTime);
         } else {
-            matchSell(incoming, book, trades, currentTime);
+            matchSell(incoming, book, trades, completedOrders, currentTime);
         }
 
         // Handle remainder
@@ -64,7 +65,7 @@ public class MatchEngine implements IMatchEngine {
             incoming.cancel(currentTime);
         }
 
-        return trades;
+        return new MatchResult(trades, completedOrders);
     }
 
     // ── BUY -match against best asks ────────────────────────────────────────────
@@ -94,7 +95,7 @@ public class MatchEngine implements IMatchEngine {
      * @param trades      the list where generated trades are recorded
      * @param currentTime the simulation timestamp of the trade
      */
-    private void matchBuy(Order buy, OrderBook book, List<Trade> trades, double currentTime) {
+    private void matchBuy(Order buy, OrderBook book, List<Trade> trades, List<Order> completedOrders, double currentTime) {
 
         while (buy.isActive() && book.hasAsks()) {
 
@@ -131,6 +132,7 @@ public class MatchEngine implements IMatchEngine {
             restingAsk.reduceShareSize(qty, currentTime);
 
             if (restingAsk.isFilled()) {
+                completedOrders.add(restingAsk);
                 book.removeBestAskOrder();
             }
         }
@@ -163,7 +165,7 @@ public class MatchEngine implements IMatchEngine {
      * @param trades      the list where generated trades are recorded
      * @param currentTime the simulation timestamp of the trade
      */
-    private void matchSell(Order sell, OrderBook book, List<Trade> trades, double currentTime) {
+    private void matchSell(Order sell, OrderBook book, List<Trade> trades, List<Order> completedOrders, double currentTime) {
 
         while (sell.isActive() && book.hasBids()) {
 
@@ -198,6 +200,7 @@ public class MatchEngine implements IMatchEngine {
             restingBid.reduceShareSize(qty, currentTime);
 
             if (restingBid.isFilled()) {
+                completedOrders.add(restingBid);
                 book.removeBestBidOrder();
             }
         }

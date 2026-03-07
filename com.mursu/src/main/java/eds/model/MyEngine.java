@@ -2,7 +2,7 @@ package eds.model;
 
 import java.util.List;
 
-import controller.IControllerMtoV;
+import controller.Controller;
 import eds.database.IQueries;
 import eds.database.Queries;
 import eds.database.Records.StatisticsAndMetricsRecord;
@@ -18,15 +18,14 @@ import eduni.distributions.DiscreteGenerator;
 import eduni.distributions.LogNormal;
 import eduni.distributions.Negexp;
 import eduni.distributions.Normal;
-
 public class MyEngine extends Engine {
-	// Toimeksiannon saapuminen
+	// Creates new arrival events.
 	private ArrivalProcess arrivalProcess;
 	private StatisticsCollector stats;
 	private IMatchEngine matchEngine;
 	private OrderBook orderBook;
 	private StatisticsCollector.Snapshot latestSnapshot;
-
+	private StatisticsAndMetricsRecord latestRecord;
 	private IQueries queries = new Queries();
 	private int runId = -1;
 
@@ -40,18 +39,22 @@ public class MyEngine extends Engine {
 	private final String runTitle;
 
 	public MyEngine(
-			IControllerMtoV controller,
+			Controller controller,
 			long seed,
 			double meanValidation,
 			double meanMarketMatching,
 			double meanLimitMatching,
 			double meanExecution,
 			double arrivalMean,
+			double marketOrderRatio,
+			double buyOrderRatio,
 			double initialMidPrice,
 			double priceVolatility,
 			double tickSize,
-			String runTitle) {
+			String runTitle
+	) {
 		super(controller);
+
 		// Store parameters needed by results()
 		this.seed = seed;
 		this.meanValidation = meanValidation;
@@ -60,38 +63,32 @@ public class MyEngine extends Engine {
 		this.meanExecution = meanExecution;
 		this.arrivalMean = arrivalMean;
 		this.runTitle = runTitle;
-
-		// Luodaan palvelupisteet
+		
+		// Create service points.
 		servicePoints = new ServicePoint[4];
 
-		/*
-		 * Each generator receives a unique seed offset to ensure statistically
-		 * independent random streams.
-		 * Same base seed always produces identical simulation output —
-		 * reproducibility is fully preserved.
-		 */
-		servicePoints[0] = new ServicePoint(new Negexp(meanValidation, seed + 88), eventList,
-				EventType.VALIDATION_COMPLETE);
-		servicePoints[1] = new ServicePoint(new Negexp(meanMarketMatching, seed + 19), eventList,
-				EventType.MARKET_MATCHING_COMPLETE);
-		servicePoints[2] = new ServicePoint(new Negexp(meanLimitMatching, seed + 22), eventList,
-				EventType.LIMIT_MATCHING_COMPLETE);
-		servicePoints[3] = new ServicePoint(new Negexp(meanExecution, seed + 69), eventList,
-				EventType.EXECUTION_COMPLETE);
+		// Different seed offsets keep random streams separate.
+		servicePoints[0]=new ServicePoint(new Negexp(meanValidation, seed + 88), eventList, EventType.VALIDATION_COMPLETE);
+		servicePoints[1]=new ServicePoint(new Negexp(meanMarketMatching, seed + 19), eventList, EventType.MARKET_MATCHING_COMPLETE);
+		servicePoints[2]=new ServicePoint(new Negexp(meanLimitMatching, seed + 22), eventList, EventType.LIMIT_MATCHING_COMPLETE);
+		servicePoints[3]=new ServicePoint(new Negexp(meanExecution, seed + 69), eventList, EventType.EXECUTION_COMPLETE);
 
-		DiscreteGenerator sideGenerator = new Bernoulli(0.5, seed + 42);
-		DiscreteGenerator typeGenerator = new Bernoulli(0.8, seed + 55);
-		/* Normal random walk. */
+		// These ratios can be entered as 0..1 or 0..100.
+		double buyRatio = normalizeRatio(buyOrderRatio);
+		double marketRatio = normalizeRatio(marketOrderRatio);
+		double limitRatio = 1.0 - marketRatio;
+
+		DiscreteGenerator sideGenerator = new Bernoulli(buyRatio, seed + 42);
+		DiscreteGenerator typeGenerator = new Bernoulli(limitRatio, seed + 55);
+
+		// Price moves around the mid price with random noise.
 		ContinuousGenerator priceGenerator = new Normal(0.0, priceVolatility * priceVolatility, seed + 62);
 
-		/*
-		 * Order size variables and generation. We can access these later from the GUI
-		 */
+		// Order sizes come from a log-normal distribution and are rounded to lots.
 		final double orderSizeLogNormalMean = 3.7;
 		final double orderSizeLogNormalVariance = 1.0;
 		final long orderSizeLotSize = 10L;
-		ContinuousGenerator rawSizeGenerator = new LogNormal(orderSizeLogNormalMean, orderSizeLogNormalVariance,
-				seed + 8);
+		ContinuousGenerator rawSizeGenerator = new LogNormal(orderSizeLogNormalMean, orderSizeLogNormalVariance, seed + 8);
 		DiscreteGenerator sizeGenerator = new DiscreteGenerator() {
 			@Override
 			public long sample() {
@@ -116,7 +113,7 @@ public class MyEngine extends Engine {
 			}
 		};
 
-		// Toimeksiantojen saapuminen 💼
+		// Create the arrival process for new orders.
 		arrivalProcess = new ArrivalProcess(
 				new Negexp(arrivalMean, seed + 4),
 				eventList,
@@ -127,66 +124,83 @@ public class MyEngine extends Engine {
 				sizeGenerator,
 				initialMidPrice,
 				tickSize);
-
-		// Tilastot
+		
+		// Create model helpers.
 		stats = new StatisticsCollector(servicePoints.length);
 		matchEngine = new MatchEngine();
 		orderBook = new OrderBook();
 	}
 
+	// Converts ratio input to a value between 0 and 1.
+	private double normalizeRatio(double value) {
+		if (value < 0.0) {
+			return 0.0;
+		}
+		if (value > 1.0) {
+			return Math.min(1.0, value / 100.0);
+		}
+		return value;
+	}
+
 	@Override
 	protected void initialization() {
-		// Ensimmäinen toimeksianto
+		// Schedule the first order arrival.
 		arrivalProcess.generateNext();
 	}
 
 	@Override
 	protected void afterCycle() {
+		// Sample metrics and refresh the order book table.
 		stats.observeServicePoints(servicePoints);
-		stats.observeOrderBook(orderBook.getSnapshot());
+		OrderBook.OrderBookSnapshot snapshot = orderBook.getSnapshot();
+		stats.observeOrderBook(snapshot);
+		controller.updateOrderBook(snapshot);
 	}
 
 	@Override
-	protected void runEvent(Event t) { // B phase events
-		// Käsitellään toimeksianto
+	protected void runEvent(Event t) {
+		// Handle one simulation event.
 
-		switch ((EventType) t.getType()) {
-			case ARRIVAL -> {
+			switch ((EventType)t.getType()){
+				case ARRIVAL -> {
 				ISimulationEntity arrivedEntity = t.getEntity();
 
-				// Arrival flow expects Order, so we check the concrete type
-				if (arrivedEntity instanceof Order arrivedOrder) {
-					stats.arrival(arrivedOrder);
-					servicePoints[0].add(arrivedOrder);
-					arrivalProcess.generateNext();
-					controller.visualiseEntity();
-				}
-			}
-			case VALIDATION_COMPLETE -> {
-				ISimulationEntity validatedEntity = servicePoints[0].finishService();
-
-				// Validation flow expects an Order, so we check the concrete type
-				if (validatedEntity instanceof Order validatedOrder) {
-					if (validatedOrder.getType() == Order.Type.MARKET) {
-						servicePoints[1].add(validatedOrder);
-					} else {
-						servicePoints[2].add(validatedOrder);
+					// Only orders move through the arrival flow.
+					if (arrivedEntity instanceof Order arrivedOrder) {
+						stats.arrival(arrivedOrder);
+						servicePoints[0].add(arrivedOrder);
+						arrivalProcess.generateNext();
+						controller.updateTimeAndQueues();
 					}
 				}
-			}
+				case VALIDATION_COMPLETE -> {
+				ISimulationEntity validatedEntity = servicePoints[0].finishService();
+
+					// Send the order to the correct matching stage.
+					if (validatedEntity instanceof Order validatedOrder) {
+						if (validatedOrder.getType() == Order.Type.MARKET) {
+							servicePoints[1].add(validatedOrder);
+						} else {
+							servicePoints[2].add(validatedOrder);
+						}
+					}
+				}
 			case MARKET_MATCHING_COMPLETE -> {
 				ISimulationEntity matchedEntity = servicePoints[1].finishService();
 
-				// We can only match orders against the order book, so we check the concrete
-				// type
+				// Match the market order against the book.
 				if (matchedEntity instanceof Order matchedOrder) {
-					// Use current simulation time for timestamp
 					double now = Clock.getInstance().getTime();
 
-					// Matching returns all trades produced by this order
-					List<Trade> trades = matchEngine.match(matchedOrder, orderBook, now);
+					IMatchEngine.MatchResult matchResult = matchEngine.match(matchedOrder, orderBook, now);
+					List<Trade> trades = matchResult.trades();
 
-					// Send each trade to EXECUTION service point
+					// Resting orders that were filled in the book are completed here.
+					for (Order completedOrder : matchResult.completedOrders()) {
+						stats.completion(completedOrder, now);
+					}
+
+					// Trades and completed incoming orders go to execution.
 					for (Trade trade : trades) {
 						servicePoints[3].add(trade);
 					}
@@ -200,21 +214,23 @@ public class MyEngine extends Engine {
 			case LIMIT_MATCHING_COMPLETE -> {
 				ISimulationEntity matchedEntity = servicePoints[2].finishService();
 
-				// We can only match orders against the order book, so we check the concrete
-				// type
+				// Match the limit order against the book.
 				if (matchedEntity instanceof Order matchedOrder) {
-					// Use current simulation time for timestamp
 					double now = Clock.getInstance().getTime();
 
-					// Matching returns all trades produced by this order
-					List<Trade> trades = matchEngine.match(matchedOrder, orderBook, now);
+					IMatchEngine.MatchResult matchResult = matchEngine.match(matchedOrder, orderBook, now);
+					List<Trade> trades = matchResult.trades();
 
-					// Send each trade to EXECUTION service point
+					// Resting orders that were filled in the book are completed here.
+					for (Order completedOrder : matchResult.completedOrders()) {
+						stats.completion(completedOrder, now);
+					}
+
+					// Trades and completed incoming orders go to execution.
 					for (Trade trade : trades) {
 						servicePoints[3].add(trade);
 					}
 
-					// If order is done, send it too
 					if (!matchedOrder.isActive()) {
 						servicePoints[3].add(matchedOrder);
 					}
@@ -223,7 +239,7 @@ public class MyEngine extends Engine {
 			case EXECUTION_COMPLETE -> {
 				ISimulationEntity finishedEntity = servicePoints[3].finishService();
 
-				// EXECUTION service point can contain Trade and Order
+				// Execution stage can finish both orders and trades.
 				if (finishedEntity instanceof Order finishedOrder) {
 					stats.completion(finishedOrder, Clock.getInstance().getTime());
 				}
@@ -236,11 +252,11 @@ public class MyEngine extends Engine {
 
 	@Override
 	protected void results() {
+		// Build final snapshot, show it in UI, and save it to the database.
 		double endTime = Clock.getInstance().getTime();
-		latestSnapshot = stats.buildSnapshot(Clock.getInstance().getTime());
-		controller.showEndTime(Clock.getInstance().getTime());
+		latestSnapshot = stats.buildSnapshot(endTime);
 
-		StatisticsAndMetricsRecord record = queries.buildRecord(
+		latestRecord = queries.buildRecord(
 				latestSnapshot,
 				runTitle,
 				seed,
@@ -251,14 +267,20 @@ public class MyEngine extends Engine {
 				arrivalMean,
 				endTime);
 
-		runId = queries.saveStatisticsAndMetrics(record);
-		queries.saveAllTrades(latestSnapshot.trades(), runId);
-
+		runId = queries.saveStatisticsAndMetrics(latestRecord);
+		if (runId >= 0) {
+			queries.saveAllTrades(latestSnapshot.trades(), runId);
+		}
+		controller.showEndTime(endTime);
 		System.out.println("-----Simulation Statistics-----");
 		System.out.println(latestSnapshot);
 	}
 
 	public StatisticsCollector.Snapshot getStatisticsSnapshot() {
 		return latestSnapshot;
+	}
+
+	public StatisticsAndMetricsRecord getStatisticsRecord() {
+		return latestRecord;
 	}
 }
