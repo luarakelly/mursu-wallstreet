@@ -178,7 +178,52 @@ public class Queries implements IQueries {
      */
     @Override
     public int saveAllTrades(List<TradeRecord> trades, int runId) {
-        return -1;
+        if (trades == null || trades.isEmpty()) {
+            Trace.out(Trace.Level.INFO, "Queries: no trades to save for run id=" + runId);
+            return 0;
+        }
+
+        String sql = """
+                INSERT INTO trades (id, run_id, buy_order_id, sell_order_id, price, share_size, conclusion_time)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+                """;
+
+        Connection conn = Database.getInstance().getConnection();
+
+        try {
+            conn.setAutoCommit(false);
+
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                for (TradeRecord trade : trades) {
+                    stmt.setString(1, trade.id());
+                    stmt.setInt(2, runId);
+                    stmt.setString(3, trade.buyOrderId());
+                    stmt.setString(4, trade.sellOrderId());
+                    stmt.setDouble(5, trade.price());
+                    stmt.setInt(6, trade.shareSize());
+                    stmt.setDouble(7, trade.conclusionTime());
+                    stmt.addBatch();
+                }
+
+                int[] results = stmt.executeBatch();
+                conn.commit();
+
+                Trace.out(Trace.Level.INFO, "Queries: saved " + results.length
+                        + " trades for run id=" + runId);
+                return results.length;
+
+            } catch (SQLException e) {
+                conn.rollback();
+                Trace.out(Trace.Level.ERR, "Queries: saveAll rolled back — " + e.getMessage());
+                return -1;
+            } finally {
+                conn.setAutoCommit(true); // always restore — prevents connection leak
+            }
+
+        } catch (SQLException e) {
+            Trace.out(Trace.Level.ERR, "Queries: saveAll transaction setup failed — " + e.getMessage());
+            return -1;
+        }
     }
 
     // ── Find all ──────────────────────────────────────────────────────────────
