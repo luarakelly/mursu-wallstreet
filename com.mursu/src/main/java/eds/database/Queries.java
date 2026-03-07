@@ -234,7 +234,22 @@ public class Queries implements IQueries {
      */
     @Override
     public List<StatisticsAndMetricsRecord> findAll() {
+        String sql = "SELECT * FROM statistics_and_metrics ORDER BY id DESC";
         List<StatisticsAndMetricsRecord> results = new ArrayList<>();
+
+        try (PreparedStatement stmt = Database.getInstance()
+                .getConnection().prepareStatement(sql);
+                ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                results.add(mapRecord(rs));
+            }
+
+            Trace.out(Trace.Level.INFO, "Queries: findAll returned " + results.size() + " runs");
+
+        } catch (SQLException e) {
+            Trace.out(Trace.Level.ERR, "Queries: findAll failed — " + e.getMessage());
+        }
 
         return results;
     }
@@ -251,6 +266,26 @@ public class Queries implements IQueries {
      */
     @Override
     public Optional<StatisticsAndMetricsRecord> findById(int id) {
+        String sql = "SELECT * FROM statistics_and_metrics WHERE id = ?";
+
+        try (PreparedStatement stmt = Database.getInstance()
+                .getConnection().prepareStatement(sql)) {
+
+            stmt.setInt(1, id);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    Trace.out(Trace.Level.INFO, "Queries: findById found id=" + id);
+                    return Optional.of(mapRecord(rs));
+                }
+            }
+
+        } catch (SQLException e) {
+            Trace.out(Trace.Level.ERR, "Queries: findById failed id=" + id
+                    + " — " + e.getMessage());
+        }
+
+        Trace.out(Trace.Level.WAR, "Queries: findById — no record for id=" + id);
         return Optional.empty();
     }
 
@@ -262,7 +297,34 @@ public class Queries implements IQueries {
      */
     @Override
     public List<TradeRecord> findTradesByRunId(int runId) {
+        String sql = "SELECT * FROM trades WHERE run_id = ? ORDER BY conclusion_time ASC";
         List<TradeRecord> results = new ArrayList<>();
+
+        try (PreparedStatement stmt = Database.getInstance()
+                .getConnection().prepareStatement(sql)) {
+
+            stmt.setInt(1, runId);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    results.add(new TradeRecord(
+                            rs.getString("id"),
+                            rs.getInt("run_id"),
+                            rs.getString("buy_order_id"),
+                            rs.getString("sell_order_id"),
+                            rs.getDouble("price"),
+                            rs.getInt("share_size"),
+                            rs.getDouble("conclusion_time")));
+                }
+            }
+
+            Trace.out(Trace.Level.INFO, "Queries: findTradesByRunId returned "
+                    + results.size() + " trades for run id=" + runId);
+
+        } catch (SQLException e) {
+            Trace.out(Trace.Level.ERR, "Queries: findTradesByRunId failed run_id="
+                    + runId + " — " + e.getMessage());
+        }
 
         return results;
     }
@@ -275,7 +337,38 @@ public class Queries implements IQueries {
      * Used by findAll() and findById().
      */
     private StatisticsAndMetricsRecord mapRecord(ResultSet rs) throws SQLException {
-        return new StatisticsAndMetricsRecord();
+        return new StatisticsAndMetricsRecord(
+                rs.getInt("id"),
+                rs.getString("run_timestamp"),
+                rs.getString("run_name"),
+                rs.getLong("seed"),
+                rs.getDouble("mean_validation"),
+                rs.getDouble("mean_market"),
+                rs.getDouble("mean_limit"),
+                rs.getDouble("mean_execution"),
+                rs.getDouble("mean_arrival"),
+                rs.getDouble("simulation_time"),
+                rs.getInt("total_orders"),
+                rs.getInt("total_trades"),
+                rs.getInt("filled_orders"),
+                rs.getInt("cancelled_orders"),
+                rs.getInt("remaining_orders"),
+                rs.getDouble("vwap"),
+                rs.getDouble("avg_mid_price"),
+                rs.getDouble("min_price"),
+                rs.getDouble("max_price"),
+                rs.getDouble("avg_spread"),
+                rs.getDouble("avg_latency"),
+                rs.getDouble("throughput"),
+                rs.getDouble("fill_rate"),
+                rs.getDouble("utilization_validation"),
+                rs.getDouble("utilization_market"),
+                rs.getDouble("utilization_limit"),
+                rs.getDouble("utilization_execution"),
+                rs.getDouble("avg_queue_validation"),
+                rs.getDouble("avg_queue_market"),
+                rs.getDouble("avg_queue_limit"),
+                rs.getDouble("avg_queue_execution"));
     }
 
     /**
