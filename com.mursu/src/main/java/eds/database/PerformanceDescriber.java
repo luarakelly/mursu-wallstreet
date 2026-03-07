@@ -26,8 +26,6 @@ public class PerformanceDescriber {
     public List<String> generateInsights() {
         List<String> insights = new ArrayList<>();
 
-        // FILL RATE - how many orders were successfully matched.
-        // High fill rate means good liquidity in the market.
         double fillRate = record.fillRate();
         if (fillRate <= 1) {
             fillRate *= 100;
@@ -35,21 +33,15 @@ public class PerformanceDescriber {
 
         if (fillRate >= 80) {
             insights.add("Fill rate is " + String.format("%.1f", fillRate) +
-                    "% – strong liquidity, most orders matched.");
-        }
-        else if (fillRate >= 50) {
+                    "% - strong liquidity, most orders matched.");
+        } else if (fillRate >= 50) {
             insights.add("Fill rate is " + String.format("%.1f", fillRate) +
-                    "% – moderate liquidity.");
-        }
-        else {
+                    "% - moderate liquidity.");
+        } else {
             insights.add("Fill rate is " + String.format("%.1f", fillRate) +
-                    "% – weak liquidity.");
+                    "% - weak liquidity.");
         }
 
-        // SPREAD VS VWAP (Volume Weighted Average Price)
-        // Spread - difference between best buy price and best sell price.
-        // VWAP - average trade price weighted by volume.
-        // If spread is large compared to VWAP, the market has thin liquidity.
         double spread = record.avgSpread();
         double vwap = record.vwap();
 
@@ -57,11 +49,15 @@ public class PerformanceDescriber {
             insights.add("Average spread of " + String.format("%.4f", spread) +
                     " is wide relative to VWAP of " + String.format("%.4f", vwap) +
                     " - thin liquidity.");
+        } else if (vwap > 0) {
+            insights.add("Average spread of " + String.format("%.4f", spread) +
+                    " stays reasonable relative to VWAP of " + String.format("%.4f", vwap) +
+                    " - pricing looks stable.");
+        } else {
+            insights.add("Average spread is " + String.format("%.4f", spread) +
+                    " - not enough trade price data for VWAP comparison.");
         }
 
-        // EXECUTION UTILIZATION
-        // - how busy the execution service point was.
-        // Very high utilization means the system may be close to overload.
         double execUtil = record.utilizationExecution();
         if (execUtil <= 1) {
             execUtil *= 100;
@@ -70,12 +66,17 @@ public class PerformanceDescriber {
         if (execUtil > 95) {
             insights.add("Execution service point is at " +
                     String.format("%.1f", execUtil) +
-                    "% utilization – system near saturation.");
+                    "% utilization - system near saturation.");
+        } else if (execUtil > 75) {
+            insights.add("Execution service point is at " +
+                    String.format("%.1f", execUtil) +
+                    "% utilization - high load but still stable.");
+        } else {
+            insights.add("Execution service point is at " +
+                    String.format("%.1f", execUtil) +
+                    "% utilization - load is under control.");
         }
 
-        // BOTTLENECK DETECTION
-        // Each service point has a queue of orders waiting to be processed.
-        // The biggest queue usually shows where the system slows down.
         double qValidation = record.avgQueueValidation();
         double qMarket = record.avgQueueMarket();
         double qLimit = record.avgQueueLimit();
@@ -114,17 +115,8 @@ public class PerformanceDescriber {
             util = uExecution;
         }
 
-        // call it a bottleneck only if queue is noticeable and utilization is high
-        if (maxQueue > 1 && util > 80) {
-            insights.add("Bottleneck likely at " + bottleneck +
-                    " – queue is growing and the service point is heavily loaded.");
-        }
-
-        // If none of the conditions above triggered,
-        // it means the run looked normal and no warnings were detected.
-        if (insights.isEmpty()) {
-            insights.add("Run completed – no major warnings detected.");
-        }
+        insights.add("Largest average queue is at " + bottleneck +
+                ". Average queue size is " + String.format("%.2f", maxQueue) + " orders.");
 
         return insights;
     }
