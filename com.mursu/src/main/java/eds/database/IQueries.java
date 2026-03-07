@@ -34,13 +34,13 @@ public interface IQueries {
      * 
      * @return the generated run id, or -1 if insert failed
      */
-    int save(StatisticsAndMetricsRecord record);
+    int saveStatisticsAndMetrics(StatisticsAndMetricsRecord record);
 
     /**
      * Persists all trades from a run in a single transaction.
      * Linked to the run via runId returned by save().
      */
-    int saveAll(List<TradeRecord> trades, int runId);
+    int saveAllTrades(List<TradeRecord> trades, int runId);
 
     /**
      * Returns all simulation runs, most recent first.
