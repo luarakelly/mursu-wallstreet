@@ -146,15 +146,19 @@ public class PerformanceDescriber {
         double maxQueue = Math.max(Math.max(qValidation, qMarket), Math.max(qLimit, qExecution));
 
         boolean weakFillRate = fillRate < 50;
+        boolean moderateFillRate = fillRate < 70;
         boolean wideSpread = vwap > 0 && spread > vwap * 0.02;
+        boolean moderatelyWideSpread = vwap > 0 && spread > vwap * 0.01;
         boolean saturatedExecution = execUtil > 95;
-        boolean queueBuildUp = maxQueue >= 1.0;
+        boolean heavyExecutionLoad = execUtil > 85;
+        boolean seriousQueueBuildUp = maxQueue >= 3.0;
+        boolean moderateQueueBuildUp = maxQueue >= 1.0;
 
-        if (weakFillRate || wideSpread || saturatedExecution || queueBuildUp) {
+        if (weakFillRate || wideSpread || saturatedExecution || seriousQueueBuildUp) {
             return "Simulation finished with mixed results and some signs of market stress or congestion.";
         }
 
-        if (fillRate < 70 || execUtil > 85) {
+        if (moderateFillRate || moderatelyWideSpread || heavyExecutionLoad || moderateQueueBuildUp) {
             return "Simulation finished with moderate results and noticeable pressure in some metrics.";
         }
 

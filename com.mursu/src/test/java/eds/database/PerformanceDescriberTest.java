@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -137,5 +138,80 @@ class PerformanceDescriberTest {
 
         assertNotNull(summary);
         assertFalse(summary.isBlank());
+    }
+
+    @Test
+    @DisplayName("describe returns healthy summary for strong metrics")
+    void describeReturnsHealthySummary() {
+        StatisticsAndMetricsRecord record = createRecord(
+                0.90,
+                0.05,
+                10.0,
+                0.40,
+                0.2,
+                0.2,
+                0.2,
+                0.2,
+                0.5,
+                0.5,
+                0.5
+        );
+
+        PerformanceDescriber describer = new PerformanceDescriber(record);
+
+        assertEquals(
+                "Simulation finished without major warning signs in the main metrics.",
+                describer.describe()
+        );
+    }
+
+    @Test
+    @DisplayName("describe returns moderate summary for moderate queue buildup")
+    void describeReturnsModerateSummary() {
+        StatisticsAndMetricsRecord record = createRecord(
+                0.82,
+                0.08,
+                10.0,
+                0.60,
+                1.4,
+                0.5,
+                0.5,
+                0.5,
+                0.5,
+                0.5,
+                0.5
+        );
+
+        PerformanceDescriber describer = new PerformanceDescriber(record);
+
+        assertEquals(
+                "Simulation finished with moderate results and noticeable pressure in some metrics.",
+                describer.describe()
+        );
+    }
+
+    @Test
+    @DisplayName("describe returns mixed summary for serious queue buildup")
+    void describeReturnsMixedSummary() {
+        StatisticsAndMetricsRecord record = createRecord(
+                0.82,
+                0.08,
+                10.0,
+                0.60,
+                3.2,
+                0.5,
+                0.5,
+                0.5,
+                0.5,
+                0.5,
+                0.5
+        );
+
+        PerformanceDescriber describer = new PerformanceDescriber(record);
+
+        assertEquals(
+                "Simulation finished with mixed results and some signs of market stress or congestion.",
+                describer.describe()
+        );
     }
 }
