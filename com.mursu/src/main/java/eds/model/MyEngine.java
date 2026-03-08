@@ -2,7 +2,7 @@ package eds.model;
 
 import java.util.List;
 
-import controller.Controller;
+import controller.IModelToViewController;
 import eds.database.IQueries;
 import eds.database.Queries;
 import eds.database.Records.StatisticsAndMetricsRecord;
@@ -18,7 +18,16 @@ import eduni.distributions.DiscreteGenerator;
 import eduni.distributions.LogNormal;
 import eduni.distributions.Negexp;
 import eduni.distributions.Normal;
-public class MyEngine extends Engine {
+
+/**
+ * Simulation engine for the order flow model.
+ *
+ * This class creates the arrival process, service points, matching components,
+ * and statistics collection used during one simulation run. It processes events
+ * in stages, updates the order book, sends refresh events to the UI controller,
+ * and stores the final results when the run ends.
+ */
+public class MyEngine extends Engine implements IEngine {
 	// Creates new arrival events.
 	private ArrivalProcess arrivalProcess;
 	private StatisticsCollector stats;
@@ -38,8 +47,25 @@ public class MyEngine extends Engine {
 	private final double arrivalMean;
 	private final String runTitle;
 
+	/**
+	 * Creates a simulation engine with the selected run parameters.
+	 *
+	 * @param controller controller that receives UI updates from the engine
+	 * @param seed base random seed for the simulation
+	 * @param meanValidation mean service time for validation
+	 * @param meanMarketMatching mean service time for market order matching
+	 * @param meanLimitMatching mean service time for limit order matching
+	 * @param meanExecution mean service time for execution
+	 * @param arrivalMean mean time between arrivals
+	 * @param marketOrderRatio share of market orders in generated flow
+	 * @param buyOrderRatio share of buy orders in generated flow
+	 * @param initialMidPrice starting mid price for generated orders
+	 * @param priceVolatility volatility used for generated order prices
+	 * @param tickSize minimum allowed price step
+	 * @param runTitle title stored with the saved run results
+	 */
 	public MyEngine(
-			Controller controller,
+			IModelToViewController controller,
 			long seed,
 			double meanValidation,
 			double meanMarketMatching,
@@ -131,7 +157,13 @@ public class MyEngine extends Engine {
 		orderBook = new OrderBook();
 	}
 
-	// Converts ratio input to a value between 0 and 1.
+	/**
+	 * Normalizes a ratio input to the range 0..1.
+	 * Accepts both decimal values such as 0.35 and percentage-style values such as 35.
+	 *
+	 * @param value raw ratio input from configuration
+	 * @return normalized ratio in the range 0..1
+	 */
 	private double normalizeRatio(double value) {
 		if (value < 0.0) {
 			return 0.0;
@@ -142,12 +174,20 @@ public class MyEngine extends Engine {
 		return value;
 	}
 
+	/**
+	 * Schedules the first arrival event before the simulation loop starts.
+	 */
 	@Override
 	protected void initialization() {
 		// Schedule the first order arrival.
 		arrivalProcess.generateNext();
 	}
 
+	/**
+	 * Runs after each simulation cycle.
+	 * Updates collected statistics, builds a fresh order book snapshot,
+	 * and sends the new table data to the UI.
+	 */
 	@Override
 	protected void afterCycle() {
 		// Sample metrics and refresh the order book table.
@@ -157,6 +197,13 @@ public class MyEngine extends Engine {
 		controller.updateOrderBook(snapshot);
 	}
 
+	/**
+	 * Handles one event from the event list.
+	 * Orders move through validation, matching, and execution stages,
+	 * while trades and finished orders are recorded in the statistics collector.
+	 *
+	 * @param t event selected by the simulation framework
+	 */
 	@Override
 	protected void runEvent(Event t) {
 		// Handle one simulation event.
@@ -250,6 +297,11 @@ public class MyEngine extends Engine {
 		}
 	}
 
+	/**
+	 * Finalizes the run after the simulation loop ends.
+	 * Builds the final statistics snapshot, saves the results to the database,
+	 * and notifies the UI that the simulation has finished.
+	 */
 	@Override
 	protected void results() {
 		// Build final snapshot, show it in UI, and save it to the database.
@@ -276,10 +328,20 @@ public class MyEngine extends Engine {
 		System.out.println(latestSnapshot);
 	}
 
+	/**
+	 * Returns the latest final statistics snapshot created in {@link #results()}.
+	 *
+	 * @return final snapshot for the completed run
+	 */
 	public StatisticsCollector.Snapshot getStatisticsSnapshot() {
 		return latestSnapshot;
 	}
 
+	/**
+	 * Returns the latest database record created for the completed run.
+	 *
+	 * @return saved statistics record for the completed run
+	 */
 	public StatisticsAndMetricsRecord getStatisticsRecord() {
 		return latestRecord;
 	}

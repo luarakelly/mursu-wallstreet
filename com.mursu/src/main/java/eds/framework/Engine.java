@@ -1,6 +1,6 @@
 package eds.framework;
 
-import controller.Controller;
+import controller.IModelToViewController;
 
 public abstract class Engine extends Thread {
 	// Simulaation kesto
@@ -12,9 +12,9 @@ public abstract class Engine extends Thread {
 	
 	protected EventList eventList;
 	protected ServicePoint[] servicePoints;
-	protected Controller controller; 
+	protected IModelToViewController controller; 
 
-	public Engine(Controller controller) {	
+	public Engine(IModelToViewController controller) {	
 		this.controller = controller;  			
 		clock = Clock.getInstance();
 		eventList = new EventList();

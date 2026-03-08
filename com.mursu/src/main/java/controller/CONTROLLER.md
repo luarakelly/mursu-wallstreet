@@ -1,93 +1,139 @@
-# Controllers
+# Controller Layer
 
-This layer contains the controllers used by the engine and the UI of the application.
+The current controllers design is based on one shared controller class and two interfaces:
+- `IViewToModelController` defines what the page controllers (view) can call
+- `IModelToViewController` defines what the engine (model) can call
+- `Controller.java` implements both interfaces and works as the central connection point
 
 ## Files
 
-### `MainPageController.java`
-Controls the main page from `main_view.fxml`.
+### `IViewToModelController.java`
+Interface for calls from the UI layer to the main controller.
 
-- reads values from the input fields
-- applies preset values to the form
-- creates `SimulationConfig` from the current form values
-- opens the simulation page at the end
+It contains operations for:
+- main page initialization and preset loading
+- opening the simulation page
+- starting the simulation
+- simulation controls such as pause and speed changes
+- showing order book and results page data
+- filling the results page
+- returning from results to the main page
 
-### `SimulationPageController.java`
-Controls the simulation page from `simulation_view.fxml`.
+This interface is used by the page controllers so they depend on controller behavior, not on a concrete implementation.
 
-- handles simulation page buttons
-- shows timer values
-- shows queue lengths
-- shows the order book table
-- opens the results page when the run ends
+### `IModelToViewController.java`
+Interface for calls from the simulation engine to the controller.
 
-This class is the UI controller for the simulation page.
-It does not run the simulation logic directly, it uses `Controller.java` for that.
+It contains operations for:
+- notifying that the run has ended
+- updating time and queue labels
+- updating the order book table
+
+This interface is used by `MyEngine`, so the engine sends updates through the controller instead of touching JavaFX views directly.
 
 ### `Controller.java`
-This is the logic controller (mostly for the simulation page, so the simulation page does not touch MyEngine on its own).
+Central controller class of the application.
+
+`Controller.java` implements both `IViewToModelController` and `IModelToViewController`.
+Because of that, it sits between both sides of the program:
+- page controllers call it through `IViewToModelController`
+- `MyEngine` calls it through `IModelToViewController`
+
+Main responsibilities:
+- apply presets to the main page
+- read form values and build `SimulationConfig`
+- open `simulation_view.fxml` and `results_view.fxml`
+- create and start `MyEngine`
+- handle pause and speed changes during a run
+- receive engine updates and move UI work to the JavaFX thread with `Platform.runLater(...)`
+- prepare formatted values for the results page
+- convert order book snapshots into table rows
+
+This file contains the main application coordination logic.
+
+### `MainPageController.java`
+JavaFX controller for `main_view.fxml`.
 
 Responsibilities:
-- creates `MyEngine`
-- starts the simulation
-- changes simulation speed
-- pauses and resumes the simulation
-- receives updates from `MyEngine`
-- sends those updates to `SimulationPageController`
+- receive button actions from the main page
+- forward those actions to `IViewToModelController`
+- provide helper methods for reading and writing input field values
 
-This class is placed between the simulation UI and the engine.
+This class is only a page controller.
+It does not create the engine or contain simulation logic.
+
+### `SimulationPageController.java`
+JavaFX controller for `simulation_view.fxml`.
+
+Responsibilities:
+- initialize the order book table
+- forward pause and speed actions to `IViewToModelController`
+- provide helper methods for updating timer, queues, and order book rows
+
+This class is also a thin UI layer.
+The simulation logic is not implemented here.
 
 ### `ResultsPageController.java`
-Controls the results page from `results_view.fxml`.
+JavaFX controller for `results_view.fxml`.
 
 Responsibilities:
-- shows final metrics from the simulation snapshot
-- shows bottleneck text
-- shows human-readable insight text from `PerformanceDescriber`
-- returns user to the main page
+- receive final result data for the page
+- forward navigation actions to `IViewToModelController`
+- provide helper methods for updating result labels
 
-## Application workflow
+This class displays values prepared by `Controller.java`.
+It does not compute metrics itself.
 
-### 1. Application start
-`SimulatorGUI.java` starts JavaFX and loads `main_view.fxml`.
-At that moment JavaFX creates `MainPageController`.
+## Connection flow
 
-### 2. Main page
-`MainPageController` fills the input fields with the balanced preset in `initialize()`.
-When the user clicks the Start button, the method `handleStartSimulation()`:
-- reads all input values
-- builds `SimulationConfig`
-- loads `simulation_view.fxml`
-- gets `SimulationPageController`
-- calls `startSimulation(config)`
+### 1. From page to controller
+Each page controller creates `new Controller(this)` inside its `initialize()` method.
+The page then stores that object through the `IViewToModelController` type.
 
-### 3. Simulation page
-When `simulation_view.fxml` is loaded, JavaFX creates `SimulationPageController`.
-In its `initialize()` method it:
-- prepares the order book table
-- creates a new `Controller` object from `Controller.java`
+This means the page can call controller operations such as:
+- `initializeMainPage()`
+- `openSimulationPageFromMain()`
+- `startSimulation(config)`
+- `togglePause()`
+- `populateResults()`
 
-Then `SimulationPageController.startSimulation(config)` passes the config to `Controller`.
+### 2. From controller to engine
+When the simulation starts, `Controller.startSimulation()` creates `MyEngine` and passes `this` into the constructor.
 
-### 4. Logic controller and engine
-`Controller.startSimulation(config)`:
-- creates `MyEngine`
-- copies values from `SimulationConfig` into the engine
-- starts the engine thread
+This works because `Controller` implements `IModelToViewController`.
+So the engine receives a callback target that it can use for updates.
 
-While the simulation is running:
-- `SimulationPageController` sends button actions to `Controller`
-- `Controller` changes speed or pause state in `MyEngine`
-- `MyEngine` sends updates back through `Controller`
-- `Controller` updates `SimulationPageController`
+### 3. From engine back to controller
+During the run, `MyEngine` calls methods from `IModelToViewController` such as:
+- `updateTimeAndQueues()`
+- `updateOrderBook()`
+- `showEndTime()`
 
-### 5. Results page
-When the engine finishes, `Controller.showEndTime()` tells `SimulationPageController`
-to open the results page.
+`Controller.java` receives those calls, prepares UI data if needed, and updates the JavaFX pages on the correct thread.
 
-`SimulationPageController.showResultsPage()`:
-- loads `results_view.fxml`
-- gets `ResultsPageController`
-- sends final snapshot and record there
+## Runtime sequence
 
-`ResultsPageController.setResults()` then fills the final labels and insights.
+### Main page
+- JavaFX loads `main_view.fxml`
+- `MainPageController.initialize()` creates `Controller`
+- `Controller.initializeMainPage()` fills the default preset values
+
+### Start simulation
+- the user presses Start
+- `MainPageController` forwards the action to `Controller.openSimulationPageFromMain()`
+- `Controller` reads all input values into `SimulationConfig`
+- `Controller` loads `simulation_view.fxml`
+- `SimulationPageController.startSimulation(config)` forwards the config back to `Controller.startSimulation(...)`
+- `Controller` creates and starts `MyEngine`
+
+### During simulation
+- `SimulationPageController` forwards pause and speed actions to `Controller`
+- `MyEngine` sends time, queue, and order book updates to `Controller`
+- `Controller` updates the simulation page through JavaFX-safe UI calls
+
+### End of simulation
+- `MyEngine.results()` builds the final snapshot and record
+- `MyEngine` calls `showEndTime()` on `Controller`
+- `Controller` opens the results page
+- `ResultsPageController.setResults()` forwards final data to `Controller.populateResults()`
+- `Controller` formats and writes the final values into the results page labels
