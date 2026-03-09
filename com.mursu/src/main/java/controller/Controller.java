@@ -1,6 +1,8 @@
 package controller;
 
+import eds.database.IQueries;
 import eds.database.PerformanceDescriber;
+import eds.database.Queries;
 import eds.database.Records.StatisticsAndMetricsRecord;
 import eds.framework.Clock;
 import eds.config.SimulationConfig;
@@ -17,6 +19,11 @@ import javafx.stage.Stage;
 import javafx.application.Platform;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Controls the simulation logic for the simulation page.
@@ -24,10 +31,14 @@ import java.io.IOException;
  * pauses and resumes the run, and sends engine updates to the UI.
  */
 public class Controller implements IViewToModelController, IModelToViewController {
+    private static final DateTimeFormatter HISTORY_DATE_INPUT = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+    private static final DateTimeFormatter HISTORY_DATE_OUTPUT = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+
     // Pages from the UI.
     private final MainPageController mainPageController;
     private final SimulationPageController simulationPageController;
     private final ResultsPageController resultsPageController;
+    private final HistoryPageController historyPageController;
 
     // startSimulation() creates MyEngine and stores it here.
     private IEngine engine;
@@ -35,6 +46,7 @@ public class Controller implements IViewToModelController, IModelToViewControlle
     // togglePause() uses these fields to remember pause state and old delay.
     private boolean isPaused = false;
     private long delayBeforePause;
+    private List<StatisticsAndMetricsRecord> historyRecords = Collections.emptyList();
 
     /**
      * Creates a controller for one simulation page.
@@ -46,6 +58,7 @@ public class Controller implements IViewToModelController, IModelToViewControlle
         this.mainPageController = null;
         this.simulationPageController = simulationPageController;
         this.resultsPageController = null;
+        this.historyPageController = null;
     }
 
     /**
@@ -55,9 +68,10 @@ public class Controller implements IViewToModelController, IModelToViewControlle
      */
     public Controller(MainPageController mainPageController) {
         // Uses in MainPageController.initialize().
-        this.mainPageController = mainPageController;
         this.simulationPageController = null;
+        this.mainPageController = mainPageController;
         this.resultsPageController = null;
+        this.historyPageController = null;
     }
 
     /**
@@ -70,6 +84,20 @@ public class Controller implements IViewToModelController, IModelToViewControlle
         this.mainPageController = null;
         this.simulationPageController = null;
         this.resultsPageController = resultsPageController;
+        this.historyPageController = null;
+    }
+
+    /**
+     * Creates a controller for the history page.
+     *
+     * @param historyPageController the history page that handles navigation
+     */
+    public Controller(HistoryPageController historyPageController) {
+        // Uses in HistoryPageController.initialize().
+        this.mainPageController = null;
+        this.simulationPageController = null;
+        this.resultsPageController = null;
+        this.historyPageController = historyPageController;
     }
 
     /**
@@ -79,6 +107,60 @@ public class Controller implements IViewToModelController, IModelToViewControlle
     @Override
     public void initializeMainPage() {
         applyConfigToMainInputs(SimulationConfig.balanced());
+    }
+
+    /**
+     * Loads saved runs from the database and shows them in the history page menu.
+     */
+    @Override
+    public void initializeHistoryPage() {
+
+        // Get records from database
+        IQueries queries = new Queries();
+        historyRecords = queries.findAll();
+
+        ObservableList<String> items = FXCollections.observableArrayList();
+
+        // Prepare items for the dropdown
+        for (StatisticsAndMetricsRecord record : historyRecords) {
+
+            String runName = record.runName();
+            String timestamp = record.runTimestamp();
+            String formattedTimestamp;
+
+            try {
+                LocalDateTime date = LocalDateTime.parse(timestamp, HISTORY_DATE_INPUT);
+                formattedTimestamp = date.format(HISTORY_DATE_OUTPUT);
+            } catch (DateTimeParseException e) {
+                formattedTimestamp = timestamp.replace("T", " ");
+            }
+
+            items.add(runName + " " + formattedTimestamp);
+        }
+
+        // Fill dropdown
+        if (historyRecords.isEmpty()) {
+            historyPageController.setHistoryOptions(items, -1);
+        } else {
+            historyPageController.setHistoryOptions(items, 0);
+        }
+
+        // Show data
+        if (!historyRecords.isEmpty()) {
+            updateHistoryPage(0);
+        } else {
+            historyPageController.setTotalArrivedText("-");
+            historyPageController.setTotalExecutedText("-");
+            historyPageController.setRemainingText("-");
+            historyPageController.setAveragePriceText("-");
+            historyPageController.setAverageSpreadText("-");
+            historyPageController.setThroughputText("-");
+            historyPageController.setAverageLatencyText("-");
+            historyPageController.setFillRateText("-");
+            historyPageController.setAverageUtilizationText("-");
+            historyPageController.setBottleneckText("No bottleneck");
+            historyPageController.setResultsText("No saved simulations found.");
+        }
     }
 
     /**
@@ -136,30 +218,109 @@ public class Controller implements IViewToModelController, IModelToViewControlle
     }
 
     /**
+     * Opens the history page from the main page after user clicks the History button.
+     */
+    @Override
+    public void openHistoryPageFromMain() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/history_view.fxml"));
+            Parent root = loader.load();
+
+            Stage stage = mainPageController.getStage();
+            stage.setScene(new Scene(root));
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to open history page", e);
+        }
+    }
+
+    /**
      * Fills the results page labels with already computed simulation output.
      *
      * @param snapshot the final simulation snapshot
      * @param record the saved metrics record used for readable insight text
      */
     @Override
-    public void populateResults(StatisticsCollector.Snapshot snapshot, StatisticsAndMetricsRecord record) {
-        // ResultsPageController.setResults(...) forwards here.
-        // The page stays simple while this class formats the final values.
-        if (resultsPageController == null || snapshot == null) {
-            return;
+    public void updateResultsPage(StatisticsCollector.Snapshot snapshot, StatisticsAndMetricsRecord record) {
+        double averageUtilization = (record.utilizationValidation()
+                + record.utilizationMarket()
+                + record.utilizationLimit()
+                + record.utilizationExecution()) / 4.0;
+        int bottleneckIndex = 0;
+        double maxQueue = record.avgQueueValidation();
+
+        if (record.avgQueueMarket() > maxQueue) {
+            maxQueue = record.avgQueueMarket();
+            bottleneckIndex = 1;
+        }
+        if (record.avgQueueLimit() > maxQueue) {
+            maxQueue = record.avgQueueLimit();
+            bottleneckIndex = 2;
+        }
+        if (record.avgQueueExecution() > maxQueue) {
+            maxQueue = record.avgQueueExecution();
+            bottleneckIndex = 3;
         }
 
-        resultsPageController.setTotalArrivedText(String.valueOf(snapshot.totalArrivedOrders()));
-        resultsPageController.setTotalExecutedText(String.valueOf(snapshot.totalExecutedOrders()));
-        resultsPageController.setRemainingText(String.valueOf(snapshot.remainingOrdersInBook()));
-        resultsPageController.setAveragePriceText(format(snapshot.averageMidPrice()));
-        resultsPageController.setAverageSpreadText(format(snapshot.averageSpread()));
-        resultsPageController.setThroughputText(format(snapshot.throughput()));
-        resultsPageController.setAverageLatencyText(format(snapshot.averageWaitingTime()));
-        resultsPageController.setFillRateText(formatPercent(snapshot.fillRate()));
-        resultsPageController.setAverageUtilizationText(formatPercent(snapshot.averageServicePointUtilization()));
-        resultsPageController.setBottleneckText(getBottleneckText(snapshot.bottleneckServicePointIndex()));
+        String bottleneckText = maxQueue > 0
+                ? getBottleneckText(bottleneckIndex)
+                : "No bottleneck";
+
+        resultsPageController.setTotalArrivedText(String.valueOf(record.totalOrders()));
+        resultsPageController.setTotalExecutedText(String.valueOf(record.filledOrders()));
+        resultsPageController.setRemainingText(String.valueOf(record.remainingOrders()));
+        resultsPageController.setAveragePriceText(format(record.avgMidPrice()));
+        resultsPageController.setAverageSpreadText(format(record.avgSpread()));
+        resultsPageController.setThroughputText(format(record.throughput()));
+        resultsPageController.setAverageLatencyText(format(record.avgLatency()));
+        resultsPageController.setFillRateText(formatPercent(record.fillRate()));
+        resultsPageController.setAverageUtilizationText(formatPercent(averageUtilization));
+        resultsPageController.setBottleneckText(bottleneckText);
         resultsPageController.setResultsText(buildPerformanceText(record));
+    }
+
+    /**
+     * Fills the history page from one database record selected by the user.
+     *
+     * @param recordIndex index of the selected saved simulation run
+     */
+    @Override
+    public void updateHistoryPage(int recordIndex) {
+        StatisticsAndMetricsRecord record = historyRecords.get(recordIndex);
+        double averageUtilization = (record.utilizationValidation()
+                + record.utilizationMarket()
+                + record.utilizationLimit()
+                + record.utilizationExecution()) / 4.0;
+        int bottleneckIndex = 0;
+        double maxQueue = record.avgQueueValidation();
+
+        if (record.avgQueueMarket() > maxQueue) {
+            maxQueue = record.avgQueueMarket();
+            bottleneckIndex = 1;
+        }
+        if (record.avgQueueLimit() > maxQueue) {
+            maxQueue = record.avgQueueLimit();
+            bottleneckIndex = 2;
+        }
+        if (record.avgQueueExecution() > maxQueue) {
+            maxQueue = record.avgQueueExecution();
+            bottleneckIndex = 3;
+        }
+
+        String bottleneckText = maxQueue > 0
+                ? getBottleneckText(bottleneckIndex)
+                : "No bottleneck";
+
+        historyPageController.setTotalArrivedText(String.valueOf(record.totalOrders()));
+        historyPageController.setTotalExecutedText(String.valueOf(record.filledOrders()));
+        historyPageController.setRemainingText(String.valueOf(record.remainingOrders()));
+        historyPageController.setAveragePriceText(format(record.avgMidPrice()));
+        historyPageController.setAverageSpreadText(format(record.avgSpread()));
+        historyPageController.setThroughputText(format(record.throughput()));
+        historyPageController.setAverageLatencyText(format(record.avgLatency()));
+        historyPageController.setFillRateText(formatPercent(record.fillRate()));
+        historyPageController.setAverageUtilizationText(formatPercent(averageUtilization));
+        historyPageController.setBottleneckText(bottleneckText);
+        historyPageController.setResultsText(buildPerformanceText(record));
     }
 
     /**
@@ -171,6 +332,21 @@ public class Controller implements IViewToModelController, IModelToViewControlle
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/main_view.fxml"));
             Parent root = loader.load();
             Stage stage = resultsPageController.getStage();
+            stage.setScene(new Scene(root));
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to open main page", e);
+        }
+    }
+
+    /**
+     * Opens the main page from the history page after user clicks return.
+     */
+    @Override
+    public void openMainPageFromHistory() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/main_view.fxml"));
+            Parent root = loader.load();
+            Stage stage = historyPageController.getStage();
             stage.setScene(new Scene(root));
         } catch (IOException e) {
             throw new RuntimeException("Failed to open main page", e);
@@ -438,7 +614,7 @@ public class Controller implements IViewToModelController, IModelToViewControlle
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/results_view.fxml"));
             Parent root = loader.load();
             ResultsPageController page = loader.getController();
-            page.setResults(snapshot, record);
+            page.updateResultsPage(snapshot, record);
 
             Stage stage = simulationPageController.getStage();
             stage.setScene(new Scene(root));
