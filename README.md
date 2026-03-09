@@ -4,8 +4,7 @@ Interactive Java-based stock exchange order book simulator with real-time visual
 <img width="2464" height="1728" alt="1770385742487" src="https://github.com/user-attachments/assets/c10a0e62-e09c-4f8c-bb3e-48a18ed199c9" />
 
 ### Ksenia 
-- App.js - orchestrator 
-- controllers - connector to Ui and model 
+- Controllers ✅
 - Clock ✅
 - Event ✅
 - EventType ✅
