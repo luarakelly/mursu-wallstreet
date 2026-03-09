@@ -27,7 +27,7 @@ public class SimulationPageController {
 
     // These fields are linked to elements from simulation_view.fxml.
     @FXML private Label labelTimer;
-    @FXML private Label labelArrival;
+    @FXML private Label labelValidation;
     @FXML private Label labelMarket;
     @FXML private Label labelLimit;
     @FXML private Label labelExecution;
@@ -109,7 +109,7 @@ public class SimulationPageController {
     }
 
     /**
-     * Updates the four queue labels on the simulation page.
+     * Updates the queue labels on the simulation page.
      *
      * @param queueLengths queue values for validation, market, limit, and execution
      */
@@ -118,7 +118,7 @@ public class SimulationPageController {
             return;
         }
 
-        labelArrival.setText(String.valueOf(queueLengths[0]));
+        labelValidation.setText(String.valueOf(queueLengths[0]));
         labelMarket.setText(String.valueOf(queueLengths[1]));
         labelLimit.setText(String.valueOf(queueLengths[2]));
         labelExecution.setText(String.valueOf(queueLengths[3]));
