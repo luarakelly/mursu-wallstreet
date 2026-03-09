@@ -13,7 +13,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="600.0" minWidth="800.0" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.SimulationViewController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="600.0" minWidth="800.0" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.SimulationPageController">
    <top>
       <HBox alignment="TOP_CENTER" prefHeight="100.0" prefWidth="200.0" BorderPane.alignment="CENTER">
          <children>
@@ -49,9 +49,9 @@
    <bottom>
       <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="50.0" BorderPane.alignment="CENTER">
          <children>
-            <Button fx:id="btnSlowDown" mnemonicParsing="false" text="&lt;&lt; Slow Down" />
-            <Button fx:id="btnPause" mnemonicParsing="false" text="Pause ||" />
-            <Button fx:id="btnSpeedUp" mnemonicParsing="false" text="Speed Up &gt;&gt;" />
+            <Button fx:id="btnSlowDown" mnemonicParsing="false" onAction="#handleSlowDown" text="&lt;&lt; Slow Down" />
+            <Button fx:id="btnPause" mnemonicParsing="false" onAction="#handlePause" text="Pause ||" />
+            <Button fx:id="btnSpeedUp" mnemonicParsing="false" onAction="#handleSpeedUp" text="Speed Up &gt;&gt;" />
          </children>
       </HBox>
    </bottom>
@@ -101,12 +101,12 @@
                   </VBox>
                </children>
             </VBox>
-            <TableView prefHeight="410.0" prefWidth="410.0">
+            <TableView fx:id="orderBookTable" prefHeight="410.0" prefWidth="410.0">
                <columns>
-                  <TableColumn fx:id="colAskShare" prefWidth="82.0" resizable="false" text="Share" />
-                  <TableColumn fx:id="colAskPrice" prefWidth="82.0" resizable="false" text="Price" />
-                  <TableColumn fx:id="colBidShare" prefWidth="82.0" resizable="false" text="Share" />
-                  <TableColumn fx:id="colBidPrice" prefWidth="82.0" resizable="false" text="Price" />
+                  <TableColumn fx:id="colAskShare" prefWidth="82.0" resizable="false" text="Ask Size" />
+                  <TableColumn fx:id="colAskPrice" prefWidth="82.0" resizable="false" text="Ask Price" />
+                  <TableColumn fx:id="colBidShare" prefWidth="82.0" resizable="false" text="Bid Size" />
+                  <TableColumn fx:id="colBidPrice" prefWidth="82.0" resizable="false" text="Bid Price" />
                   <TableColumn fx:id="colSpread" prefWidth="82.0" resizable="false" text="Spread" />
                </columns>
             </TableView>

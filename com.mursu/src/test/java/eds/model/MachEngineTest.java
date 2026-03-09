@@ -33,7 +33,8 @@ class MatchEngineTest {
                                 2.0);
 
                 MatchEngine engine = new MatchEngine();
-                List<Trade> trades = engine.match(incomingBuy, book, TIME);
+                IMatchEngine.MatchResult matchResult = engine.match(incomingBuy, book, TIME);
+                List<Trade> trades = matchResult.trades();
 
                 assertEquals(1, trades.size());
                 assertTrue(incomingBuy.isFilled());
@@ -62,7 +63,8 @@ class MatchEngineTest {
                                 2.0);
 
                 MatchEngine engine = new MatchEngine();
-                List<Trade> trades = engine.match(incomingBuy, book, TIME);
+                IMatchEngine.MatchResult matchResult = engine.match(incomingBuy, book, TIME);
+                List<Trade> trades = matchResult.trades();
 
                 assertEquals(1, trades.size());
                 assertEquals(60, incomingBuy.getRemainingShareSize());
@@ -91,7 +93,8 @@ class MatchEngineTest {
                                 2.0);
 
                 MatchEngine engine = new MatchEngine();
-                List<Trade> trades = engine.match(incomingBuy, book, TIME);
+                IMatchEngine.MatchResult matchResult = engine.match(incomingBuy, book, TIME);
+                List<Trade> trades = matchResult.trades();
 
                 assertEquals(0, trades.size());
                 assertTrue(book.hasAsks());
@@ -119,7 +122,8 @@ class MatchEngineTest {
                                 2.0);
 
                 MatchEngine engine = new MatchEngine();
-                List<Trade> trades = engine.match(incomingBuy, book, TIME);
+                IMatchEngine.MatchResult matchResult = engine.match(incomingBuy, book, TIME);
+                List<Trade> trades = matchResult.trades();
 
                 assertEquals(1, trades.size());
                 assertTrue(restingSell.isFilled());
@@ -156,7 +160,8 @@ class MatchEngineTest {
                                 3.0);
 
                 MatchEngine engine = new MatchEngine();
-                List<Trade> trades = engine.match(incomingBuy, book, TIME);
+                IMatchEngine.MatchResult matchResult = engine.match(incomingBuy, book, TIME);
+                List<Trade> trades = matchResult.trades();
 
                 assertEquals(1, trades.size());
                 assertTrue(firstSell.isFilled());
@@ -193,7 +198,8 @@ class MatchEngineTest {
                                 3.0);
 
                 MatchEngine engine = new MatchEngine();
-                List<Trade> trades = engine.match(incomingBuy, book, TIME);
+                IMatchEngine.MatchResult matchResult = engine.match(incomingBuy, book, TIME);
+                List<Trade> trades = matchResult.trades();
 
                 assertEquals(1, trades.size());
                 assertTrue(lowerPriceSell.isFilled());

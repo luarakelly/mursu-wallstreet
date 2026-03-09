@@ -116,6 +116,14 @@ public class StatisticsCollector {
 		totalTradedNotional += trade.getPrice() * trade.getShareSize();
 		minTradePrice = Math.min(minTradePrice, trade.getPrice());
 		maxTradePrice = Math.max(maxTradePrice, trade.getPrice());
+		collectedTrades.add(new TradeRecord(
+				trade.getId(),
+				0,
+				trade.getBuyOrderId(),
+				trade.getSellOrderId(),
+				trade.getPrice(),
+				trade.getShareSize(),
+				trade.getConclusionTime()));
 	}
 
 	/* Capture service point utilization and queue accumulation. */

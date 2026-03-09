@@ -6,9 +6,8 @@ import eds.database.Records.StatisticsAndMetricsRecord;
 
 /**
  * A PerformanceDescriber converts raw simulation metrics from {@link StatisticsAndMetricsRecord}
- * into human‑readable descriptions.
+ * into human-readable descriptions.
  */
-
 public class PerformanceDescriber {
 
     // record contains all statistics variables from one simulation run
@@ -19,123 +18,114 @@ public class PerformanceDescriber {
     }
 
     /**
-     * Generates human‑readable insights from the simulation metrics.
+     * Generates human-readable insights from the simulation metrics.
      *
      * @return list of observations and warnings for the simulation run
      */
     public List<String> generateInsights() {
         List<String> insights = new ArrayList<>();
 
-        // FILL RATE - how many orders were successfully matched.
-        // High fill rate means good liquidity in the market.
         double fillRate = record.fillRate();
         if (fillRate <= 1) {
             fillRate *= 100;
         }
 
-        if (fillRate >= 80) {
-            insights.add("Fill rate is " + String.format("%.1f", fillRate) +
-                    "% – strong liquidity, most orders matched.");
-        }
-        else if (fillRate >= 50) {
-            insights.add("Fill rate is " + String.format("%.1f", fillRate) +
-                    "% – moderate liquidity.");
-        }
-        else {
-            insights.add("Fill rate is " + String.format("%.1f", fillRate) +
-                    "% – weak liquidity.");
-        }
-
-        // SPREAD VS VWAP (Volume Weighted Average Price)
-        // Spread - difference between best buy price and best sell price.
-        // VWAP - average trade price weighted by volume.
-        // If spread is large compared to VWAP, the market has thin liquidity.
         double spread = record.avgSpread();
         double vwap = record.vwap();
 
-        if (vwap > 0 && spread > vwap * 0.02) {
-            insights.add("Average spread of " + String.format("%.4f", spread) +
-                    " is wide relative to VWAP of " + String.format("%.4f", vwap) +
-                    " - thin liquidity.");
-        }
-
-        // EXECUTION UTILIZATION
-        // - how busy the execution service point was.
-        // Very high utilization means the system may be close to overload.
         double execUtil = record.utilizationExecution();
         if (execUtil <= 1) {
             execUtil *= 100;
         }
 
-        if (execUtil > 95) {
-            insights.add("Execution service point is at " +
-                    String.format("%.1f", execUtil) +
-                    "% utilization – system near saturation.");
-        }
-
-        // BOTTLENECK DETECTION
-        // Each service point has a queue of orders waiting to be processed.
-        // The biggest queue usually shows where the system slows down.
         double qValidation = record.avgQueueValidation();
         double qMarket = record.avgQueueMarket();
         double qLimit = record.avgQueueLimit();
         double qExecution = record.avgQueueExecution();
 
-        double uValidation = record.utilizationValidation();
-        double uMarket = record.utilizationMarket();
-        double uLimit = record.utilizationLimit();
-        double uExecution = execUtil;
-
-        // convert utilization to percentage
-        if (uValidation <= 1) uValidation *= 100;
-        if (uMarket <= 1) uMarket *= 100;
-        if (uLimit <= 1) uLimit *= 100;
-
-        // choose the stage with the largest queue
         double maxQueue = qValidation;
-        String bottleneck = "validation";
-        double util = uValidation;
+        String largestQueue = "validation";
 
         if (qMarket > maxQueue) {
             maxQueue = qMarket;
-            bottleneck = "market matching";
-            util = uMarket;
+            largestQueue = "market matching";
         }
-
         if (qLimit > maxQueue) {
             maxQueue = qLimit;
-            bottleneck = "limit matching";
-            util = uLimit;
+            largestQueue = "limit matching";
         }
-
         if (qExecution > maxQueue) {
             maxQueue = qExecution;
-            bottleneck = "execution";
-            util = uExecution;
+            largestQueue = "execution";
         }
 
-        // call it a bottleneck only if queue is noticeable and utilization is high
-        if (maxQueue > 1 && util > 80) {
-            insights.add("Bottleneck likely at " + bottleneck +
-                    " – queue is growing and the service point is heavily loaded.");
+        boolean weakFillRate = fillRate < 50;
+        boolean moderateFillRate = fillRate < 70;
+        boolean wideSpread = vwap > 0 && spread > vwap * 0.02;
+        boolean moderatelyWideSpread = vwap > 0 && spread > vwap * 0.01;
+        boolean saturatedExecution = execUtil > 95;
+        boolean heavyExecutionLoad = execUtil > 85;
+        boolean queueBuildUp = maxQueue >= 1.0;
+
+        if (weakFillRate) {
+            insights.add("Fill rate is " + String.format("%.1f", fillRate) +
+                    "% - matching is clearly weak for this run.");
+        } else if (moderateFillRate) {
+            insights.add("Fill rate is " + String.format("%.1f", fillRate) +
+                    "% - matching looks somewhat limited.");
+        } else if (fillRate < 85) {
+            insights.add("Fill rate is " + String.format("%.1f", fillRate) +
+                    "% - a reasonable share of orders found a match.");
+        } else {
+            insights.add("Fill rate is " + String.format("%.1f", fillRate) +
+                    "% - most orders found a match.");
         }
 
-        // If none of the conditions above triggered,
-        // it means the run looked normal and no warnings were detected.
-        if (insights.isEmpty()) {
-            insights.add("Run completed – no major warnings detected.");
+        if (wideSpread) {
+            insights.add("Average spread is " + String.format("%.4f", spread) +
+                    " relative to VWAP " + String.format("%.4f", vwap) +
+                    " - liquidity looks thin.");
+        } else if (moderatelyWideSpread) {
+            insights.add("Average spread is " + String.format("%.4f", spread) +
+                    " relative to VWAP " + String.format("%.4f", vwap) +
+                    " - pricing is somewhat wide.");
+        } else if (vwap > 0) {
+            insights.add("Average spread is " + String.format("%.4f", spread) +
+                    " relative to VWAP " + String.format("%.4f", vwap) +
+                    ".");
+        } else {
+            insights.add("Average spread is " + String.format("%.4f", spread) +
+                    " - VWAP is not available for comparison.");
+        }
+
+        if (saturatedExecution) {
+            insights.add("Execution utilization is " + String.format("%.1f", execUtil) +
+                    "% - the execution stage is near saturation.");
+        } else if (heavyExecutionLoad) {
+            insights.add("Execution utilization is " + String.format("%.1f", execUtil) +
+                    "% - the execution stage is under noticeable load.");
+        } else {
+            insights.add("Execution utilization is " + String.format("%.1f", execUtil) + "%.");
+        }
+
+        if (queueBuildUp) {
+            insights.add("Largest average queue is at " + largestQueue +
+                    ". Average queue size is " + String.format("%.2f", maxQueue) +
+                    " orders - some accumulation is visible there.");
+        } else {
+            insights.add("Largest average queue is at " + largestQueue +
+                    ". Average queue size is " + String.format("%.2f", maxQueue) + " orders.");
         }
 
         return insights;
     }
 
     /**
-     * Generates a short human‑readable summary of the simulation run.
+     * Generates a short human-readable summary of the simulation run.
      *
      * @return summary description of overall simulation performance
      */
     public String describe() {
-
         double fillRate = record.fillRate();
         if (fillRate <= 1) {
             fillRate *= 100;
@@ -149,25 +139,29 @@ public class PerformanceDescriber {
             execUtil *= 100;
         }
 
-        String liquidity;
-        if (fillRate >= 80) {
-            liquidity = "strong liquidity";
-        } else if (fillRate >= 50) {
-            liquidity = "moderate liquidity";
-        } else {
-            liquidity = "weak liquidity";
+        double qValidation = record.avgQueueValidation();
+        double qMarket = record.avgQueueMarket();
+        double qLimit = record.avgQueueLimit();
+        double qExecution = record.avgQueueExecution();
+        double maxQueue = Math.max(Math.max(qValidation, qMarket), Math.max(qLimit, qExecution));
+
+        boolean weakFillRate = fillRate < 50;
+        boolean moderateFillRate = fillRate < 70;
+        boolean wideSpread = vwap > 0 && spread > vwap * 0.02;
+        boolean moderatelyWideSpread = vwap > 0 && spread > vwap * 0.01;
+        boolean saturatedExecution = execUtil > 95;
+        boolean heavyExecutionLoad = execUtil > 85;
+        boolean seriousQueueBuildUp = maxQueue >= 3.0;
+        boolean moderateQueueBuildUp = maxQueue >= 1.0;
+
+        if (weakFillRate || wideSpread || saturatedExecution || seriousQueueBuildUp) {
+            return "Simulation finished with mixed results and some signs of market stress or congestion.";
         }
 
-        String spreadState = "normal spreads";
-        if (vwap > 0 && spread > vwap * 0.02) {
-            spreadState = "wide spreads";
+        if (moderateFillRate || moderatelyWideSpread || heavyExecutionLoad || moderateQueueBuildUp) {
+            return "Simulation finished with moderate results and noticeable pressure in some metrics.";
         }
 
-        String loadState = "normal system load";
-        if (execUtil > 95) {
-            loadState = "execution stage near saturation";
-        }
-
-        return "Simulation shows " + liquidity + ", " + spreadState + ", and " + loadState + ".";
+        return "Simulation finished without major warning signs in the main metrics.";
     }
 }

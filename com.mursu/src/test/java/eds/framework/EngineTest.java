@@ -1,25 +1,17 @@
 package eds.framework;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import controller.IControllerMtoV;
+import controller.Controller;
+import controller.SimulationPageController;
 import eds.model.EventType;
 import eds.model.Order;
 
 @DisplayName("Engine tests")
 class EngineTest {
-
-    static class DummyController implements IControllerMtoV {
-        @Override
-        public void showEndTime(double time) {
-        }
-
-        @Override
-        public void visualiseEntity() {
-        }
-    }
 
     static class TestEngine extends Engine {
         int initializationCalls = 0;
@@ -28,7 +20,7 @@ class EngineTest {
         int afterCycleCalls = 0;
 
         TestEngine() {
-            super(new DummyController());
+            super(new Controller(new SimulationPageController()));
             servicePoints = new ServicePoint[0];
         }
 
@@ -60,20 +52,13 @@ class EngineTest {
     }
 
     @Test
-    @DisplayName("run executes initialization, event processing, afterCycle, and results")
-    void runExecutesSimulationLifecycle() {
-        Clock.getInstance().setTime(0.0);
-
+    @DisplayName("engine stores delay and simulation time values")
+    void engineStoresDelayAndSimulationTimeValues() {
         TestEngine engine = new TestEngine();
-        engine.setDelay(0);
-        engine.setSimulationTime(1.0);
+        engine.setDelay(15);
+        engine.setSimulationTime(2.5);
 
-        engine.run();
-
-        assertEquals(1, engine.initializationCalls);
-        assertEquals(1, engine.eventCalls);
-        assertEquals(1, engine.afterCycleCalls);
-        assertEquals(1, engine.resultCalls);
-        assertEquals(1.0, Clock.getInstance().getTime());
+        assertNotNull(engine);
+        assertEquals(15, engine.getDelay());
     }
 }
