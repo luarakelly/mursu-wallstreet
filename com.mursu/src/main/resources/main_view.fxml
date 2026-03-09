@@ -46,9 +46,8 @@
    <bottom>
       <AnchorPane prefHeight="100.0" BorderPane.alignment="CENTER">
          <children>
-            <Button fx:id="btnHistory" layoutX="14.0" layoutY="38.0" mnemonicParsing="false" text="History" />
+            <Button fx:id="btnHistory" layoutX="14.0" layoutY="38.0" mnemonicParsing="false" onAction="#handleOpenHistory" text="History" />
             <Button fx:id="btnStart" layoutX="734.0" layoutY="38.0" mnemonicParsing="false" onAction="#handleStartSimulation" text="Begin Simulation ▶" AnchorPane.bottomAnchor="36.4" AnchorPane.rightAnchor="14.0" />
-            <HBox prefHeight="100.0" prefWidth="200.0" />
          </children>
       </AnchorPane>
    </bottom>
