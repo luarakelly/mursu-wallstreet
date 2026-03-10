@@ -60,7 +60,7 @@
       <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="50.0" BorderPane.alignment="CENTER">
          <children>
             <Button fx:id="btnMain" mnemonicParsing="false" onAction="#handleBackToMain" text="Back to Main" />
-            <Button fx:id="btnDL" mnemonicParsing="false" onAction="#handleDownloadCsv" text="Download CSV" />
+            <!-- <Button fx:id="btnDL" mnemonicParsing="false" onAction="#handleDownloadCsv" text="Download CSV" /> -->
          </children>
       </HBox>
    </bottom>
