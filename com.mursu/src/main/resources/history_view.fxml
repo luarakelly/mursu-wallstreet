@@ -22,7 +22,7 @@
             <children>
                 <VBox alignment="CENTER_LEFT" prefHeight="200.0">
                     <children>
-                        <Label text="ムルス HISTORY">
+                        <Label text="MURSU HISTORY">
                             <font>
                                 <Font name="System Bold" size="36.0" />
                             </font>

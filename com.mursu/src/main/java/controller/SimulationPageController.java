@@ -14,6 +14,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.stage.Stage;
+import view.Graph;
 
 /**
  * JavaFX controller for the simulation page.
@@ -27,7 +28,7 @@ public class SimulationPageController {
 
     // These fields are linked to elements from simulation_view.fxml.
     @FXML private Label labelTimer;
-    @FXML private Label labelArrival;
+    @FXML private Label labelValidation;
     @FXML private Label labelMarket;
     @FXML private Label labelLimit;
     @FXML private Label labelExecution;
@@ -41,12 +42,14 @@ public class SimulationPageController {
     @FXML private TableColumn<String[], String> colSpread;
 
     private IViewToModelController controller;
+    private Graph midPriceGraph;
 
     /*
     startSimulation() saves the selected simulation time limit here
     so the timer label does not show a value above that limit.
      */
     private double simulationTimeLimit;
+    private double currentTime;
 
     /**
      * Initializes the simulation page after the FXML file is loaded.
@@ -61,6 +64,7 @@ public class SimulationPageController {
         colSpread.setCellValueFactory(rowData -> new SimpleStringProperty(rowData.getValue()[4]));
 
         orderBookTable.setItems(FXCollections.observableArrayList());
+        midPriceGraph = new Graph(graph, 100);
         controller = new Controller(this);
     }
 
@@ -104,12 +108,13 @@ public class SimulationPageController {
      * @param time the current simulation time from the engine
      */
     public void updateSimulationTime(double time) {
+        currentTime = time;
         double shownTime = Math.min(time, simulationTimeLimit);
         labelTimer.setText(String.format("%.2f", shownTime));
     }
 
     /**
-     * Updates the four queue labels on the simulation page.
+     * Updates the queue labels on the simulation page.
      *
      * @param queueLengths queue values for validation, market, limit, and execution
      */
@@ -118,7 +123,7 @@ public class SimulationPageController {
             return;
         }
 
-        labelArrival.setText(String.valueOf(queueLengths[0]));
+        labelValidation.setText(String.valueOf(queueLengths[0]));
         labelMarket.setText(String.valueOf(queueLengths[1]));
         labelLimit.setText(String.valueOf(queueLengths[2]));
         labelExecution.setText(String.valueOf(queueLengths[3]));
@@ -131,6 +136,15 @@ public class SimulationPageController {
      */
     public void showOrderBook(OrderBook.OrderBookSnapshot snapshot) {
         controller.showOrderBook(snapshot);
+        if (snapshot.midPrice().isPresent()) {
+            midPriceGraph.addValue(snapshot.midPrice().getAsDouble());
+        }
+    }
+
+    public void updateGraph(OrderBook.OrderBookSnapshot snapshot) {
+        if (snapshot.midPrice().isPresent()) {
+            midPriceGraph.addValue(snapshot.midPrice().getAsDouble());
+        }
     }
 
     /**
