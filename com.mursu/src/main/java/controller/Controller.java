@@ -488,7 +488,10 @@ public class Controller implements IViewToModelController, IModelToViewControlle
 
         // The table is a JavaFX UI element,
         // so this update must run in the JavaFX UI thread.
-        Platform.runLater(() -> simulationPageController.setOrderBookRows(rows));
+        Platform.runLater(() -> {
+            simulationPageController.setOrderBookRows(rows);
+            simulationPageController.updateGraph(snapshot);
+        });
     }
 
     /**
