@@ -1,23 +1,22 @@
 package controller;
 
-import eds.database.Records.StatisticsAndMetricsRecord;
-import eds.model.StatisticsCollector;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 /**
- * JavaFX controller for the results page.
+ * JavaFX controller for the history page.
  *
  * Responsibilities:
- * - receive the final simulation data for results_view.fxml
+ * - receive user actions from history_view.fxml
  * - forward navigation actions back to {@link Controller}
- * - provide UI methods for writing formatted values into labels
  */
-public class ResultsPageController {
-
-    // These fields are linked to labels and buttons from results_view.fxml.
+public class HistoryPageController {
+    // These fields are linked to the results table from history_view.fxml.
     @FXML private Label labelTotalArrived;
     @FXML private Label labelTotalExecuted;
     @FXML private Label labelRemaining;
@@ -29,42 +28,46 @@ public class ResultsPageController {
     @FXML private Label labelAvgUtilization;
     @FXML private Label labelBottleNeck;
     @FXML private Label labelResults;
+
+    // Not used but saved jsut in case
+    // @FXML private TextField inputSearch;
+    // @FXML private Button btnSearch;
+
+    // This field is linked to the select with history records about simulation runs.
+    @FXML private ComboBox<String> menuHistoryList;
+
+    // Back to main page button
     @FXML private Button btnMain;
 
     private IViewToModelController controller;
 
-    /**
-     * Initializes the results page after the FXML file is loaded.
-     * Creates the controller that fills the page and handles navigation.
-     */
     @FXML
     private void initialize() {
         controller = new Controller(this);
+        controller.initializeHistoryPage();
     }
 
-    /**
-     * Fills the results page with final simulation values.
-     *
-     * @param snapshot the final simulation snapshot with aggregated metrics
-     * @param record the database record used for human-readable insight text
-     */
-    public void updateResultsPage(StatisticsCollector.Snapshot snapshot, StatisticsAndMetricsRecord record) {
-        controller.updateResultsPage(snapshot, record);
-    }
-
+    // Starts main page back
     @FXML
     private void handleBackToMain() {
-        controller.openMainPageFromResults();
+        controller.openMainPageFromHistory();
     }
 
     @FXML
-    private void handleDownloadCsv() {
-        // TODO
-        // The Download CSV button calls this method.
+    private void handleHistorySelection() {
+        int selectedIndex = menuHistoryList.getSelectionModel().getSelectedIndex();
+        if (selectedIndex >= 0) {
+            controller.updateHistoryPage(selectedIndex);
+        }
     }
 
-    Stage getStage() {
-        return (Stage) btnMain.getScene().getWindow();
+    void setHistoryOptions(ObservableList<String> items, int selectedIndex) {
+        menuHistoryList.setItems(items);
+        if (selectedIndex < 0 || selectedIndex >= items.size()) {
+            menuHistoryList.getSelectionModel().clearSelection();
+            return;
+        }
+        menuHistoryList.getSelectionModel().select(selectedIndex);
     }
 
     void setTotalArrivedText(String value) {
@@ -109,5 +112,13 @@ public class ResultsPageController {
 
     void setResultsText(String value) {
         labelResults.setText(value);
+    }
+
+//    String getSearchInput() {
+//        return inputSearch.getText();
+//    }
+
+    Stage getStage() {
+        return (Stage) btnMain.getScene().getWindow();
     }
 }

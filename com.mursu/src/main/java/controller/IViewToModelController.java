@@ -11,6 +11,8 @@ import eds.model.StatisticsCollector;
 public interface IViewToModelController {
     void initializeMainPage();
 
+    void initializeHistoryPage();
+
     void applyBalancedPreset();
 
     void applySlowPreset();
@@ -18,6 +20,8 @@ public interface IViewToModelController {
     void applyHighFrequencyPreset();
 
     void applyVolatilePreset();
+
+    void openHistoryPageFromMain();
 
     void openSimulationPageFromMain();
 
@@ -33,7 +37,11 @@ public interface IViewToModelController {
 
     void showResultsPage(StatisticsCollector.Snapshot snapshot, StatisticsAndMetricsRecord record);
 
-    void populateResults(StatisticsCollector.Snapshot snapshot, StatisticsAndMetricsRecord record);
+    void updateResultsPage(StatisticsCollector.Snapshot snapshot, StatisticsAndMetricsRecord record);
+
+    void updateHistoryPage(int recordIndex);
 
     void openMainPageFromResults();
+
+    void openMainPageFromHistory();
 }

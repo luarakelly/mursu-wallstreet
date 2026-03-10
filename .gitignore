@@ -32,3 +32,6 @@ target/
 
 ## SQL database file
 simulation.db
+
+#MacOS
+.DS_Store

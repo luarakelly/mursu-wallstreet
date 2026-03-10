@@ -29,6 +29,8 @@ public class MainPageController {
     @FXML private TextField inputExecution;
     @FXML private TextField inputMarketRatio;
     @FXML private TextField inputBuyRatio;
+
+    @FXML private Button btnHistory;
     @FXML private Button btnStart;
 
     private IViewToModelController controller;
@@ -39,9 +41,16 @@ public class MainPageController {
         controller.initializeMainPage();
     }
 
+    // Starts simulation page
     @FXML
     private void handleStartSimulation() {
         controller.openSimulationPageFromMain();
+    }
+
+    // Starts history page
+    @FXML
+    private void handleOpenHistory() {
+        controller.openHistoryPageFromMain();
     }
 
     @FXML
@@ -69,7 +78,8 @@ public class MainPageController {
     }
 
     Stage getStage() {
-        return (Stage) btnStart.getScene().getWindow();
+        Button activeButton = btnStart != null ? btnStart : btnHistory;
+        return (Stage) activeButton.getScene().getWindow();
     }
 
     String getTitleInput() {
