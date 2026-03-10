@@ -75,8 +75,8 @@
                            </font></Label>
                         <HBox>
                            <children>
-                              <Label maxWidth="-Infinity" prefWidth="100.0" text="Arrival" HBox.hgrow="NEVER" />
-                              <Label fx:id="labelArrival" maxWidth="1.7976931348623157E308" text="0" HBox.hgrow="ALWAYS" />
+                              <Label maxWidth="-Infinity" prefWidth="100.0" text="Validation" HBox.hgrow="NEVER" />
+                              <Label fx:id="labelValidation" maxWidth="1.7976931348623157E308" text="0" HBox.hgrow="ALWAYS" />
                            </children>
                         </HBox>
                         <HBox>
