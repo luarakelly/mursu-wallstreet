@@ -210,8 +210,12 @@ public class Controller implements IViewToModelController, IModelToViewControlle
             SimulationPageController page = loader.getController();
             page.startSimulation(config);
 
+            // Adding style
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add("Style.css");
+
             Stage stage = mainPageController.getStage();
-            stage.setScene(new Scene(root));
+            stage.setScene(scene);
         } catch (IOException e) {
             throw new RuntimeException("Failed to open simulation page", e);
         }
@@ -226,8 +230,12 @@ public class Controller implements IViewToModelController, IModelToViewControlle
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/history_view.fxml"));
             Parent root = loader.load();
 
+            // Adding style
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add("Style.css");
+
             Stage stage = mainPageController.getStage();
-            stage.setScene(new Scene(root));
+            stage.setScene(scene);
         } catch (IOException e) {
             throw new RuntimeException("Failed to open history page", e);
         }
@@ -331,8 +339,13 @@ public class Controller implements IViewToModelController, IModelToViewControlle
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/main_view.fxml"));
             Parent root = loader.load();
+
+            // Adding style
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add("Style.css");
+
             Stage stage = resultsPageController.getStage();
-            stage.setScene(new Scene(root));
+            stage.setScene(scene);
         } catch (IOException e) {
             throw new RuntimeException("Failed to open main page", e);
         }
@@ -346,8 +359,13 @@ public class Controller implements IViewToModelController, IModelToViewControlle
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/main_view.fxml"));
             Parent root = loader.load();
+
+            // Adding style
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add("Style.css");
+
             Stage stage = historyPageController.getStage();
-            stage.setScene(new Scene(root));
+            stage.setScene(scene);
         } catch (IOException e) {
             throw new RuntimeException("Failed to open main page", e);
         }
@@ -619,8 +637,12 @@ public class Controller implements IViewToModelController, IModelToViewControlle
             ResultsPageController page = loader.getController();
             page.updateResultsPage(snapshot, record);
 
+            // Adding style
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add("Style.css");
+
             Stage stage = simulationPageController.getStage();
-            stage.setScene(new Scene(root));
+            stage.setScene(scene);
         } catch (IOException e) {
             throw new RuntimeException("Failed to open results page", e);
         }

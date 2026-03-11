@@ -11,13 +11,18 @@ public class SimulatorGUI extends Application {
 
 	@Override
 	public void start(Stage stage) throws Exception {
-		FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/main_view.fxml"));
-		Parent root = fxmlLoader.load();
 		final double stageHeight = 600;
 		final double stageWidth = 800;
-		Image icon = new Image("walrus_main.png");
 
-		stage.setScene(new Scene(root));
+		FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/main_view.fxml"));
+		Parent root = fxmlLoader.load();
+
+		Scene scene = new Scene(root);
+		scene.getStylesheets().add("Style.css");
+
+		Image icon = new Image("walrus_main.png");
+		scene.getStylesheets().add("Style.css");
+		stage.setScene(scene);
 
 		stage.getIcons().add(icon);
 		stage.setTitle("Mursu Wallstreet");
