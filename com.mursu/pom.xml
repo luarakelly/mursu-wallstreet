@@ -67,13 +67,13 @@
                         eds.database,
 
                         <!-- Javadoc for controller -->
-                        <!-- controller,-->
+                        controller,
 
                         <!-- Javadoc for view -->
-                        <!-- view,-->
+                        view,
 
                         <!-- Javadoc for distributions -->
-                        <!-- eduni.distributions,-->
+                        eduni.distributions,
                     </subpackages>
                 </configuration>
             </plugin>

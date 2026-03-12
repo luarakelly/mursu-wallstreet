@@ -22,11 +22,14 @@ class ResultsPageControllerTest {
     @DisplayName("results page controller has result methods")
     void resultsPageControllerHasResultMethods() {
         assertDoesNotThrow(() -> {
-            Method setResults = ResultsPageController.class.getDeclaredMethod("setResults", eds.model.StatisticsCollector.Snapshot.class, eds.database.Records.StatisticsAndMetricsRecord.class);
+            Method updateResultsPage = ResultsPageController.class.getDeclaredMethod(
+                    "updateResultsPage",
+                    eds.model.StatisticsCollector.Snapshot.class,
+                    eds.database.Records.StatisticsAndMetricsRecord.class);
             Method handleBackToMain = ResultsPageController.class.getDeclaredMethod("handleBackToMain");
             Method handleDownloadCsv = ResultsPageController.class.getDeclaredMethod("handleDownloadCsv");
 
-            assertNotNull(setResults);
+            assertNotNull(updateResultsPage);
             assertNotNull(handleBackToMain);
             assertNotNull(handleDownloadCsv);
         });
