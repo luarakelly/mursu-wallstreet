@@ -1,7 +1,9 @@
 # Mursu Wallstreet
-`Mursu Wallstreet` is a Java-based electronic exchange simulator with a JavaFX user interface. The application models order arrivals, validation, market and limit order matching, trade execution, and order book state updates during a simulated trading session.
+*Mursu Wallstreet* is a Java-based electronic exchange simulator with a JavaFX user interface. The application models order arrivals, validation, market and limit order matching, trade execution, and order book state updates during a simulated trading session.
 
-![Mursu Wallstreet UI](https://github.com/user-attachments/assets/c10a0e62-e09c-4f8c-bb3e-48a18ed199c9)
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/c10a0e62-e09c-4f8c-bb3e-48a18ed199c9" alt="Mursu Wallstreet UI" width="700">
+</p>
 
 The project combines three main concepts:
 
