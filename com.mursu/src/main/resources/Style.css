@@ -1,0 +1,200 @@
+/* Root background */
+.root {
+    -fx-background-color: linear-gradient(to bottom, #f6efe6, #e9dccb);
+    -fx-font-family: "Segoe UI", "Arial";
+}
+
+/* Labels */
+.label {
+    -fx-text-fill: #4b3425;
+}
+
+.title {
+    -fx-text-fill: #2f1e15;
+}
+
+.subtitle {
+    -fx-text-fill: #7a5c46;
+    -fx-font-size: 12px;
+}
+
+.sectionName {
+    -fx-font-weight: bold;
+}
+
+/* Text fields */
+.text-field {
+    -fx-background-color: #fffaf3;
+    -fx-border-color: #c8a98b;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+    -fx-text-fill: #3b2a1e;
+    -fx-padding: 5 7 5 7;
+}
+
+.text-field:focused {
+    -fx-border-color: #54bab9;
+    -fx-background-color: #fff;
+}
+
+.card {
+    -fx-background-color: #fbf8f1;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+
+    -fx-border-color: #e1d3c5;
+    -fx-border-width: 1;
+
+    -fx-padding: 5;
+
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 10, 0.2, 0, 2);
+}
+
+/* Buttons */
+.button {
+    -fx-background-color: #a67c52;
+    -fx-text-fill: #fffaf3;
+    -fx-font-weight: bold;
+    -fx-background-radius: 7;
+    -fx-border-radius: 7;
+    -fx-border-color: #8b5e3c;
+    -fx-padding: 6 14 6 14;
+}
+
+.button:hover {
+    -fx-background-color: #d3aa7b;
+    -fx-border-color: #d3aa7b;
+}
+
+.button:pressed {
+    -fx-background-color: #8b5e3c;
+}
+
+#btnStart {
+    -fx-background-color: #54bab9;
+    -fx-border-color: #3c8f8e;
+}
+
+#btnStart:hover {
+    -fx-background-color: #7acdcc;
+    -fx-border-color: #7acdcc;
+}
+
+#btnStart:pressed {
+    -fx-background-color: #3c8f8e;
+}
+
+/* ===== TABLE BASE ===== */
+.table-view {
+    -fx-background-color: #fffaf4;
+    -fx-border-color: #e1d3c5;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+
+    -fx-padding: 4;
+
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 10, 0.2, 0, 2);
+}
+
+/* ===== COLUMN HEADER ===== */
+.table-view .column-header-background {
+    -fx-background-color: linear-gradient(#c9a27e, #a67c52);
+    -fx-background-radius: 8 8 0 0;
+}
+
+.table-view .column-header {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.table-view .column-header .label {
+    -fx-text-fill: #fffaf4;
+    -fx-font-weight: bold;
+    -fx-alignment: CENTER;
+}
+
+/* ===== TABLE CELLS ===== */
+.table-cell {
+    -fx-text-fill: #3c2a1f;
+    -fx-alignment: CENTER;
+    -fx-border-color: transparent transparent #efe3d6 transparent;
+}
+
+/* ===== ROWS ===== */
+.table-row-cell {
+    -fx-background-color: #fffaf4;
+}
+
+.table-row-cell:odd {
+    -fx-background-color: #f7efe6;
+}
+
+/* ===== ROW HOVER ===== */
+.table-row-cell:hover {
+    -fx-background-color: #efe3d6;
+}
+
+/* ===== SELECTED ROW ===== */
+.table-row-cell:selected {
+    -fx-background-color: #d8c3ad;
+}
+
+.table-row-cell:selected .table-cell {
+    -fx-text-fill: #2f1e15;
+    -fx-font-weight: bold;
+}
+
+/* ===== SCROLLBAR ===== */
+.scroll-bar .thumb {
+    -fx-background-color: #b08968;
+    -fx-background-radius: 6;
+}
+
+.scroll-bar .track {
+    -fx-background-color: #efe3d6;
+}
+
+/* Ask side (sell) */
+.ask-column {
+    -fx-text-fill: #8b3a3a;
+}
+
+/* Bid side (buy) */
+.bid-column {
+    -fx-text-fill: #2f6f4f;
+}
+
+/* ===== RESULTS GRID CARD ===== */
+.grid-pane {
+    -fx-background-color: #fffaf4;
+    -fx-border-color: #e1d3c5;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+
+    -fx-padding: 3;
+
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 10, 0.2, 0, 2);
+}
+
+/* value column */
+#labelTotalArrived,
+#labelTotalExecuted,
+#labelRemaining,
+#labelAvgPrice,
+#labelAvgSpread,
+#labelThroughput,
+#labelAvgLatency,
+#labelFillRate,
+#labelAvgUtilization,
+#labelBottleNeck {
+
+    -fx-text-fill: #2f1e15;
+    -fx-font-weight: bold;
+}
+
+/* row divider effect */
+.gridLabel {
+    -fx-border-color: transparent transparent #efe3d6 transparent;
+    -fx-border-width: 0 0 1 0;
+    -fx-padding: 4 0 4 0;
+}

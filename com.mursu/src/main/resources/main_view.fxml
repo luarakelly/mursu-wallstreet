@@ -14,16 +14,16 @@
 
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="600.0" minWidth="800.0" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.MainPageController">
    <top>
-      <HBox alignment="TOP_CENTER" prefHeight="100.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+      <HBox alignment="TOP_CENTER" prefHeight="100.0" prefWidth="200.0" BorderPane.alignment="CENTER" styleClass="top-bar">
          <children>
             <VBox alignment="CENTER_LEFT" prefHeight="200.0">
                <children>
-                  <Label text="MURSU WALLSTREET">
+                  <Label text="MURSU WALLSTREET" styleClass="title">
                      <font>
                         <Font name="System Bold" size="36.0" />
                      </font>
                   </Label>
-                  <Label text="Stochastic Event-Driven Order Book Simulation" />
+                  <Label text="Stochastic Event-Driven Order Book Simulation" styleClass="subtitle"/>
                </children>
             </VBox>
             <ImageView fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true">
@@ -61,13 +61,13 @@
                <children>
                   <VBox prefHeight="200.0" prefWidth="100.0" HBox.hgrow="ALWAYS">
                      <children>
-                        <Label text="Simulation Title" />
+                        <Label text="Simulation Title" styleClass="sectionName"/>
                         <TextField fx:id="inputTitle" maxWidth="150.0" />
                      </children>
                   </VBox>
                   <VBox prefHeight="200.0" prefWidth="100.0" HBox.hgrow="ALWAYS">
                      <children>
-                        <Label text="Simulation Presets" />
+                        <Label text="Simulation Presets"  styleClass="sectionName"/>
                         <VBox prefHeight="200.0" prefWidth="100.0" spacing="10.0">
                            <children>
                               <HBox spacing="10.0">
@@ -78,7 +78,7 @@
                               </HBox>
                               <HBox spacing="10.0">
                                  <children>
-                                    <Button fx:id="btnPresetHFrequency" maxWidth="-Infinity" mnemonicParsing="false" onAction="#applyHighFrequencyPreset" prefWidth="150.0" text="High frequency scenario" />
+                                    <Button fx:id="btnPresetHFrequency" maxWidth="-Infinity" mnemonicParsing="false" onAction="#applyHighFrequencyPreset" prefWidth="150.0" text="High frequency" />
                                     <Button fx:id="btnPresetVolatile" maxWidth="-Infinity" mnemonicParsing="false" onAction="#applyVolatilePreset" prefWidth="150.0" text="Volatile market" />
                                  </children>
                               </HBox>
@@ -88,11 +88,11 @@
                   </VBox>
                </children>
             </HBox>
-            <HBox prefHeight="100.0" prefWidth="200.0" spacing="10.0" VBox.vgrow="ALWAYS">
+            <HBox prefHeight="100.0" prefWidth="200.0" spacing="10.0" VBox.vgrow="ALWAYS" >
                <children>
-                  <VBox maxWidth="1.7976931348623157E308" spacing="10.0" HBox.hgrow="ALWAYS">
+                  <VBox maxWidth="1.7976931348623157E308" spacing="10.0" HBox.hgrow="ALWAYS" styleClass="card">
                      <children>
-                        <Label text="Simulation Controllers" />
+                        <Label text="Simulation Controllers" styleClass="sectionName" />
                         <HBox prefHeight="100.0" prefWidth="200.0">
                            <children>
                               <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
@@ -143,9 +143,9 @@
                   </VBox>
                   <HBox maxWidth="1.7976931348623157E308" prefWidth="200.0" HBox.hgrow="ALWAYS">
                      <children>
-                        <VBox maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS">
+                        <VBox maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" styleClass="card">
                            <children>
-                              <Label text="Market Structure Controllers" />
+                              <Label text="Market Structure Controllers" styleClass="sectionName" />
                               <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
                                  <children>
                                     <Label maxWidth="-Infinity" prefWidth="70.0" text="Tick size" />
@@ -166,9 +166,9 @@
                               </HBox>
                            </children>
                         </VBox>
-                        <VBox maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS">
+                        <VBox maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" styleClass="card">
                            <children>
-                              <Label text="Mean Values" />
+                              <Label text="Mean Values" styleClass="sectionName" />
                               <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
                                  <children>
                                     <Label maxWidth="-Infinity" prefWidth="95.0" text="Arrival" />

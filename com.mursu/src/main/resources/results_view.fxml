@@ -29,7 +29,7 @@
          <children>
             <VBox alignment="CENTER_LEFT" prefHeight="200.0">
                <children>
-                  <Label text="Simulation in Completed!">
+                  <Label text="Simulation in Completed!" styleClass="title">
                      <font>
                         <Font name="System Bold" size="36.0" />
                      </font>
@@ -67,7 +67,7 @@
    <center>
       <HBox prefHeight="100.0" prefWidth="200.0" spacing="20.0" BorderPane.alignment="CENTER">
          <children>
-            <GridPane gridLinesVisible="true" maxWidth="-Infinity" prefWidth="390.0">
+            <GridPane gridLinesVisible="false" maxWidth="-Infinity" prefWidth="390.0" styleClass="card">
               <columnConstraints>
                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="255.0" />
                 <ColumnConstraints hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="135.0" />
@@ -85,7 +85,7 @@
                   <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
               </rowConstraints>
                <children>
-                  <Label text="Total arrived orders">
+                  <Label text="Total arrived orders" styleClass="gridLabel">
                      <font>
                         <Font size="13.0" />
                      </font>
@@ -93,7 +93,7 @@
                         <Insets left="5.0" />
                      </GridPane.margin>
                   </Label>
-                  <Label fx:id="labelTotalArrived" text="0" GridPane.columnIndex="1">
+                  <Label fx:id="labelTotalArrived" text="0" GridPane.columnIndex="1" styleClass="gridLabel">
                      <font>
                         <Font size="13.0" />
                      </font>
@@ -101,7 +101,7 @@
                         <Insets left="5.0" />
                      </GridPane.margin>
                   </Label>
-                  <Label text="Total executed orders" GridPane.rowIndex="1">
+                  <Label text="Total executed orders" GridPane.rowIndex="1" styleClass="gridLabel">
                      <font>
                         <Font size="13.0" />
                      </font>
@@ -109,7 +109,7 @@
                         <Insets left="5.0" />
                      </GridPane.margin>
                   </Label>
-                  <Label text="Remaining orders in the book" GridPane.rowIndex="2">
+                  <Label text="Remaining orders in the book" GridPane.rowIndex="2" styleClass="gridLabel">
                      <font>
                         <Font size="13.0" />
                      </font>
@@ -117,7 +117,7 @@
                         <Insets left="5.0" />
                      </GridPane.margin>
                   </Label>
-                  <Label text="Average mid-price" GridPane.rowIndex="3">
+                  <Label text="Average mid-price" GridPane.rowIndex="3" styleClass="gridLabel">
                      <font>
                         <Font size="13.0" />
                      </font>
@@ -125,7 +125,7 @@
                         <Insets left="5.0" />
                      </GridPane.margin>
                   </Label>
-                  <Label text="Average spread" GridPane.rowIndex="4">
+                  <Label text="Average spread" GridPane.rowIndex="4" styleClass="gridLabel">
                      <font>
                         <Font size="13.0" />
                      </font>
@@ -133,7 +133,7 @@
                         <Insets left="5.0" />
                      </GridPane.margin>
                   </Label>
-                  <Label text="Throughput" GridPane.rowIndex="5">
+                  <Label text="Throughput" GridPane.rowIndex="5" styleClass="gridLabel">
                      <font>
                         <Font size="13.0" />
                      </font>
@@ -141,7 +141,7 @@
                         <Insets left="5.0" />
                      </GridPane.margin>
                   </Label>
-                  <Label text="Average waiting time (latency)" GridPane.rowIndex="6">
+                  <Label text="Average waiting time (latency)" GridPane.rowIndex="6" styleClass="gridLabel">
                      <font>
                         <Font size="13.0" />
                      </font>
@@ -149,7 +149,7 @@
                         <Insets left="5.0" />
                      </GridPane.margin>
                   </Label>
-                  <Label text="Fill rate" GridPane.rowIndex="7">
+                  <Label text="Fill rate" GridPane.rowIndex="7" styleClass="gridLabel">
                      <font>
                         <Font size="13.0" />
                      </font>
@@ -157,7 +157,7 @@
                         <Insets left="5.0" />
                      </GridPane.margin>
                   </Label>
-                  <Label text="Average utilization of service points" GridPane.rowIndex="8">
+                  <Label text="Average utilization of service points" GridPane.rowIndex="8" styleClass="gridLabel">
                      <font>
                         <Font size="13.0" />
                      </font>
@@ -165,7 +165,7 @@
                         <Insets left="5.0" />
                      </GridPane.margin>
                   </Label>
-                  <Label text="Bottleneck detection (queue accumulation)" GridPane.rowIndex="9">
+                  <Label text="Bottleneck detection (queue accumulation)" GridPane.rowIndex="9" styleClass="gridLabel">
                      <font>
                         <Font size="13.0" />
                      </font>
@@ -173,7 +173,7 @@
                         <Insets left="5.0" />
                      </GridPane.margin>
                   </Label>
-                  <Label fx:id="labelTotalExecuted" text="0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                  <Label fx:id="labelTotalExecuted" text="0" GridPane.columnIndex="1" GridPane.rowIndex="1" styleClass="gridLabel">
                      <font>
                         <Font size="13.0" />
                      </font>
@@ -181,7 +181,7 @@
                         <Insets left="5.0" />
                      </GridPane.margin>
                   </Label>
-                  <Label fx:id="labelRemaining" text="0" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                  <Label fx:id="labelRemaining" text="0" GridPane.columnIndex="1" GridPane.rowIndex="2" styleClass="gridLabel">
                      <font>
                         <Font size="13.0" />
                      </font>
@@ -189,7 +189,7 @@
                         <Insets left="5.0" />
                      </GridPane.margin>
                   </Label>
-                  <Label fx:id="labelAvgPrice" text="0" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                  <Label fx:id="labelAvgPrice" text="0" GridPane.columnIndex="1" GridPane.rowIndex="3" styleClass="gridLabel">
                      <font>
                         <Font size="13.0" />
                      </font>
@@ -197,7 +197,7 @@
                         <Insets left="5.0" />
                      </GridPane.margin>
                   </Label>
-                  <Label fx:id="labelAvgSpread" text="0" GridPane.columnIndex="1" GridPane.rowIndex="4">
+                  <Label fx:id="labelAvgSpread" text="0" GridPane.columnIndex="1" GridPane.rowIndex="4" styleClass="gridLabel">
                      <font>
                         <Font size="13.0" />
                      </font>
@@ -205,7 +205,7 @@
                         <Insets left="5.0" />
                      </GridPane.margin>
                   </Label>
-                  <Label fx:id="labelThroughput" text="0" GridPane.columnIndex="1" GridPane.rowIndex="5">
+                  <Label fx:id="labelThroughput" text="0" GridPane.columnIndex="1" GridPane.rowIndex="5" styleClass="gridLabel">
                      <font>
                         <Font size="13.0" />
                      </font>
@@ -213,7 +213,7 @@
                         <Insets left="5.0" />
                      </GridPane.margin>
                   </Label>
-                  <Label fx:id="labelAvgLatency" text="0" GridPane.columnIndex="1" GridPane.rowIndex="6">
+                  <Label fx:id="labelAvgLatency" text="0" GridPane.columnIndex="1" GridPane.rowIndex="6" styleClass="gridLabel">
                      <font>
                         <Font size="13.0" />
                      </font>
@@ -221,7 +221,7 @@
                         <Insets left="5.0" />
                      </GridPane.margin>
                   </Label>
-                  <Label fx:id="labelFillRate" text="0" GridPane.columnIndex="1" GridPane.rowIndex="7">
+                  <Label fx:id="labelFillRate" text="0" GridPane.columnIndex="1" GridPane.rowIndex="7" styleClass="gridLabel">
                      <font>
                         <Font size="13.0" />
                      </font>
@@ -229,7 +229,7 @@
                         <Insets left="5.0" />
                      </GridPane.margin>
                   </Label>
-                  <Label fx:id="labelAvgUtilization" text="0" GridPane.columnIndex="1" GridPane.rowIndex="8">
+                  <Label fx:id="labelAvgUtilization" text="0" GridPane.columnIndex="1" GridPane.rowIndex="8" styleClass="gridLabel">
                      <font>
                         <Font size="13.0" />
                      </font>
@@ -237,7 +237,7 @@
                         <Insets left="5.0" />
                      </GridPane.margin>
                   </Label>
-                  <Label fx:id="labelBottleNeck" text="0" GridPane.columnIndex="1" GridPane.rowIndex="9">
+                  <Label fx:id="labelBottleNeck" text="0" GridPane.columnIndex="1" GridPane.rowIndex="9" styleClass="gridLabel">
                      <font>
                         <Font size="13.0" />
                      </font>
@@ -247,7 +247,7 @@
                   </Label>
                </children>
             </GridPane>
-            <VBox prefWidth="340.0" spacing="10.0">
+            <VBox prefWidth="340.0" spacing="10.0" styleClass="card">
                <children>
                   <Label text="Performance Insights">
                      <font>
