@@ -19,7 +19,7 @@
          <children>
             <VBox alignment="CENTER_LEFT" prefHeight="200.0">
                <children>
-                  <Label fx:id="labelSimuProcess" text="Simulation in Process">
+                  <Label fx:id="labelSimuProcess" text="Simulation in Process" styleClass="title">
                      <font>
                         <Font name="System Bold" size="36.0" />
                      </font>
@@ -62,14 +62,14 @@
                <children>
                   <HBox prefHeight="100.0" prefWidth="200.0" spacing="5.0">
                      <children>
-                        <Label text="Timer:" />
-                        <Label fx:id="labelTimer" text="0" />
+                        <Label text="Timer:" styleClass="sectionName" />
+                        <Label fx:id="labelTimer" text="0" styleClass="sectionName" />
                      </children>
                   </HBox>
                   <Canvas fx:id="graph" height="200.0" width="340.0" />
-                  <VBox maxWidth="-Infinity" prefWidth="200.0">
+                  <VBox maxWidth="-Infinity" prefWidth="200.0" styleClass="card">
                      <children>
-                        <Label text="Service Point Queue">
+                        <Label text="Service Point Queue" styleClass="sectionName">
                            <font>
                               <Font size="14.0" />
                            </font></Label>
