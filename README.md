@@ -50,7 +50,7 @@ mvn test
 ## Documentation
 Project documentation is available here:
 
-[https://github.com/luarakelly/mursu-wallstreet-docs](https://github.com/luarakelly/mursu-wallstreet-docs)
+[https://luarakelly.github.io/mursu-wallstreet-docs/](https://luarakelly.github.io/mursu-wallstreet-docs/)
 
 ## What The Simulator Does
 During a run, the engine:
