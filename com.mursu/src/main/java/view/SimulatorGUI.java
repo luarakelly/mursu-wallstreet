@@ -7,8 +7,21 @@ import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import javafx.fxml.FXMLLoader;
 
+/**
+ * JavaFX application entry point for the simulator user interface.
+ *
+ * <p>This class boots the desktop UI, loads the main FXML layout, applies the
+ * stylesheet and window icon, and configures a fixed minimum window size for
+ * the simulator.</p>
+ */
 public class SimulatorGUI extends Application {
 
+	/**
+	 * Builds and shows the primary JavaFX stage for the simulator.
+	 *
+	 * @param stage the primary application window provided by the JavaFX runtime
+	 * @throws Exception if the main FXML view or its resources cannot be loaded
+	 */
 	@Override
 	public void start(Stage stage) throws Exception {
 		final double stageHeight = 600;
@@ -35,6 +48,11 @@ public class SimulatorGUI extends Application {
 		stage.show();
 	}
 
+	/**
+	 * Launches the JavaFX application.
+	 *
+	 * @param args standard command-line arguments passed to JavaFX
+	 */
 	public static void main(String[] args) {
 		launch(args);
 	}

@@ -8,6 +8,15 @@ import javafx.scene.paint.Color;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Renders a continuously updating line chart onto a JavaFX {@link Canvas}.
+ *
+ * <p>The graph is used by the simulator UI to visualize a moving stream of
+ * numeric values, such as the current mid-price during a simulation run.
+ * Internally it keeps a sliding window of the latest values up to
+ * {@code maxPoints}, redraws the canvas on every JavaFX animation pulse, and
+ * paints a background grid plus a formatted price axis.</p>
+ */
 public class Graph {
     private final Canvas canvas;
     private final GraphicsContext gc;
@@ -19,6 +28,12 @@ public class Graph {
     private final double gridSpacingX = 50;
     private final double priceAxisWidth = 70;
 
+    /**
+     * Creates a graph renderer bound to the given canvas and starts automatic repainting.
+     *
+     * @param canvas the canvas used as the drawing surface
+     * @param maxPoints the maximum number of recent values kept in memory and shown
+     */
     public Graph(Canvas canvas, int maxPoints) {
         this.canvas = canvas;
         this.gc = canvas.getGraphicsContext2D();
@@ -27,6 +42,14 @@ public class Graph {
         startAnimation();
     }
 
+    /**
+     * Appends a new value to the graph.
+     *
+     * <p>If the internal buffer grows beyond {@code maxPoints}, the oldest value
+     * is discarded so the chart remains a fixed-width sliding window.</p>
+     *
+     * @param value the next numeric sample to display
+     */
     public void addValue(double value) {
         values.add(value);
 

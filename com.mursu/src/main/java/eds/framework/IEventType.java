@@ -1,4 +1,6 @@
 package eds.framework;
 
-// DONE (by Ks)
+/**
+ * Common marker interface for events.
+ */
 public interface IEventType {}
