@@ -25,14 +25,6 @@ replay_pid*
 
 # Maven build output
 target/
-com.mursu/target/
-
-# Generated Javadoc output
-com.mursu/target/site/
-com.mursu/target/javadoc-bundle-options/
-
-# Keep Javadoc sources under src/main/javadoc tracked
-!com.mursu/src/main/javadoc/
 
 ## IDE directories
 .idea
